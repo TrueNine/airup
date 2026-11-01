@@ -1,0 +1,33 @@
+{
+  "name": "airup",
+  "version": "0.2.39",
+  "description": "Airup engineering workflow and agent harness for Codex, combining skills, hooks, MCP integration, specialized agents, execution constraints, and feedback loops.",
+  "author": {
+    "name": "LiTeXz",
+    "url": "https://github.com/LiTeXz"
+  },
+  "homepage": "https://github.com/LiTeXz/airup",
+  "repository": "https://github.com/LiTeXz/airup",
+  "license": "GPL-3.0-only",
+  "keywords": ["codex", "skills", "hooks", "mcp", "agents", "workflow", "ddd", "tdd"],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.codex.json",
+  "interface": {
+    "displayName": "Airup",
+    "shortDescription": "Engineering workflow and agent harness for Codex",
+    "longDescription": "Airup combines composable skills, hooks, MCP integration, specialized agents, and an agent harness for engineering request routing, DDD modeling, TDD handoff, planning, execution, debugging, review, verification, and branch finishing.",
+    "developerName": "LiTeXz",
+    "composerIcon": "./assets/logo.svg",
+    "logo": "./assets/logo.png",
+    "category": "Developer Tools",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "websiteURL": "https://github.com/LiTeXz/airup",
+    "defaultPrompt": [
+      "使用 df-dev-engineering-workflow-route 对此任务分类",
+      "git 和代码托管任务使用 df-ops-vcs-manager Codex worker session。",
+      "创建 DDD 到 TDD 的实施计划",
+      "完成前验证此分支"
+    ],
+    "brandColor": "#2563EB"
+  }
+}

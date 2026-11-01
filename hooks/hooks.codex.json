@@ -1,0 +1,52 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/skills/airup-codex-assets/scripts/airup-codex-assets.ts\" hydrate",
+            "statusMessage": "airup: ensuring managed subagent tomls exist"
+          },
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/skills/airup-codex-assets/scripts/airup-codex-assets.ts\" sync-project-gitignore",
+            "statusMessage": "airup: ensuring project gitignore rules exist"
+          },
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/session-start/update-protected-branches.ts\"",
+            "timeout": 120,
+            "statusMessage": "airup: updating protected branches"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|exec_command|shell_command|shell|exec|unified_exec",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/pre-tool-use/prevent-git-push-protected-commit.ts\"",
+            "timeout": 10,
+            "statusMessage": "airup: checking Git mutation policy"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/post-tool-use/format-edited-files.ts\"",
+            "timeout": 30,
+            "statusMessage": "airup: formatting edited files"
+          }
+        ]
+      }
+    ]
+  }
+}

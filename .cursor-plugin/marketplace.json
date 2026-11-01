@@ -1,0 +1,17 @@
+{
+  "name": "airup",
+  "owner": {
+    "name": "LiTeXz",
+    "email": "truenine304520@gmail.com"
+  },
+  "metadata": {
+    "description": "Airup Cursor plugin marketplace"
+  },
+  "plugins": [
+    {
+      "name": "airup",
+      "source": ".",
+      "description": "Engineering workflows and safeguards for AI coding agents"
+    }
+  ]
+}

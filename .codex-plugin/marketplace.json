@@ -1,0 +1,20 @@
+{
+  "name": "airup",
+  "interface": {
+    "displayName": "Airup"
+  },
+  "plugins": [
+    {
+      "name": "airup",
+      "source": {
+        "source": "local",
+        "path": "."
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

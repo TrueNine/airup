@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verification Before Completion"
+  short_description: "工程 work 的强制完成 gate. 在宣称 development, refactor, 缺陷 fix, 建模, 审查, 文档, 配置, commit or PR task 完成前使用, 用于核验 user 需求, change file, 已 run 命令及 exit code, 跳过的 check, 手动验证, 残余风险以及无关 change."
+  default_prompt: "使用 $airup-verification-before-completion 在完成前 check 需求, change file, 命令, 风险 and 剩余缺口."

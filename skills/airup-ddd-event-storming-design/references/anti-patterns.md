@@ -1,0 +1,27 @@
+# DDD Modeling Anti-Patterns
+
+- 表优先建模：根据数据库表而非业务事实推导 Aggregate 和 Domain Event。
+- 需求表复述：将需求行、User Story、操作标签或业务主体视图直接转换为 Command、Domain Event、Aggregate、API 或包。
+- 丢失需求追踪：接受模型时，没有展示已确认需求条目如何被 Command、Read Model、Domain Event/Policy 或明确的未覆盖/拒绝备注覆盖。
+- CRUD 冒充 Command：用没有业务意图的 create/update/delete 操作命名 Command。
+- 技术事件污染：在业务不关心时，将 MQ 投递、日志、缓存刷新、HTTP 调用或通知建模为 Domain Event。
+- Policy 隐藏 Invariant：将 Aggregate 规则移入事件反应，以回避一致性边界建模。
+- 按名词建立 Aggregate：按名词一一创建 Aggregate，而不是按生命周期、一致性和行为建立。
+- 无参与者建模：列出 Command 和 Domain Event，却不说明谁发起 Command、谁受影响、谁消费结果事实。
+- 扁平后台建模：未先建模生命周期、任职、审批、同步和跨角色后果，就将公司、部门、岗位、员工、用户、角色或菜单等“管理”页面各自转成一个 CRUD Aggregate。
+- 通用变更事件：当 Policy 或 Read Model 需要更精确的业务事实时，仍使用 `信息已变更`、`资料已更新`、`状态已修改` 或 `记录已删除` 等模糊事实。
+- 组合结果事件：将 `已停用或解散` 等不同事实合并为一个事件，即使它们可能触发不同 Policy 或参与者后果。
+- Upsert 同步建模：当业务关心依赖顺序、冲突处理、父记录缺失、重试或失败状态时，仍将外部主数据同步视为简单 create/update。
+- Read Model 泄漏：仅因查询需要，就将页面/报表字段加入 Aggregate 状态。
+- 投影驱动事件：仅因 Read Model、页面、报表、缓存或投影需要刷新字段，就创建 Domain Event。
+- 被拒绝候选项泄漏：将头脑风暴后被拒绝的事件保留在最终事件目录、Aggregate 事件列表或实现对齐检查清单中。
+- Command 排列爆炸：根据可能事件组合创建 Command，而不是根据参与者意图、外部事实输入和一致性边界创建。
+- 未使用的 Aggregate 状态：仅因表、API、投影或 UI 包含某属性就将其加入 Aggregate，即使没有 Aggregate 方法、Invariant、唯一性规则、生命周期规则或事件决策使用它。
+- 通用唯一性规则：当人工维护和上游系统使用不同范围、Key 或冲突处理时，仍将参与者特定的身份规则合并成单一“名称/编码必须唯一”声明。
+- 臆造恢复：仅因已建模删除就在没有已确认恢复业务能力时添加恢复 Command/Domain Event。
+- 间接移除防护：根据结构子项阻止移除，而不是根据领域真正关心的业务事实阻止。
+- 框架塑造领域：将 Controller、DTO、Repository 或包视为领域模型。
+- 无生产者事件：保留没有 Command、Policy、流程或外部事实可以生产的 Domain Event。
+- 未解释读取来源：定义 Read Model 字段时，没有识别其来自已接纳事件、当前状态查询、查询侧 Join、技术投影输入、丰富化 Payload、审计/日志数据、外部来源，还是已确认的 Domain Event 缺口。
+- 过早拆分 Bounded Context：在当前问题域具有足够证据之前拆分 Context。
+- 产物泛滥：对新的模糊需求一次填满每个 `event-storming/` 文件，使推测性的下游 Domain Event、Command、Aggregate 和 Read Model 看起来已经确认。
