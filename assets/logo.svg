@@ -1,21 +1,26 @@
 ﻿<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <title>Airup</title>
-  <desc>An ascending A with a flowing blue and mint ribbon, symbolizing lift and continuous progress. Transparent square artwork.</desc>
+  <desc>A symmetrical blue fighter-ace insignia. Five tightly joined feathers form each straight-edged wing, framing a bold A and the parallel ascending chevron behind it. The A and wings share a baseline. Transparent background.</desc>
   <defs>
-    <linearGradient id="ascent" x1="115" y1="396" x2="293" y2="115" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#254FE8"/>
-      <stop offset="1" stop-color="#398BFA"/>
+    <linearGradient id="blue" x1="256" y1="106" x2="256" y2="343" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5CB9FF"/>
+      <stop offset="1" stop-color="#2859DA"/>
     </linearGradient>
-    <linearGradient id="wing" x1="257" y1="105" x2="405" y2="396" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#398BFA"/>
-      <stop offset="1" stop-color="#1650CB"/>
-    </linearGradient>
-    <linearGradient id="air" x1="139" y1="350" x2="402" y2="250" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#16B8C8"/>
-      <stop offset="1" stop-color="#63E8B4"/>
-    </linearGradient>
+    <path id="a" d="M256 196 314 343H271.864L262 318H250L240.136 343H198ZM256 251 245.741 277H266.259Z" fill-rule="evenodd"/>
+    <path id="wing-outline" d="M249 220 32 173 137 330 203 343Z"/>
+    <clipPath id="wing-clip">
+      <use href="#wing-outline"/>
+    </clipPath>
+    <g id="left-wing">
+      <use href="#wing-outline" fill="url(#blue)"/>
+      <path d="M32 200 240 245.051M32 227 231 270.101M32 254 222 295.152M32 281 213 320.203" stroke="#101E3C" stroke-width="6" clip-path="url(#wing-clip)"/>
+      <use href="#wing-outline" stroke="#101E3C" stroke-width="8" stroke-linejoin="miter"/>
+    </g>
   </defs>
-  <path d="M228 102C239 79 272 79 284 102L428 389C431 395 427 402 420 402H366C358 402 351 398 348 391L256 201L164 391C161 398 154 402 146 402H92C85 402 81 395 84 389L228 102Z" fill="url(#ascent)"/>
-  <path d="M256 89C267 89 278 93 284 102L428 389C431 395 427 402 420 402H366C358 402 351 398 348 391L256 201L278 156C291 130 278 104 256 89Z" fill="url(#wing)"/>
-  <path d="M137 316C212 351 295 324 352 257L329 242C325 239 326 233 331 232L405 214C411 213 415 217 414 223L403 298C402 303 396 305 393 301L375 284C312 363 215 395 129 363L137 316Z" fill="url(#air)"/>
+  <g transform="translate(0 35)">
+    <path d="M256 106 300.98 220H271.285L256 181.26 240.715 220H211.02Z" fill="url(#blue)" stroke="#101E3C" stroke-width="8" stroke-linejoin="miter"/>
+    <use href="#left-wing"/>
+    <use href="#left-wing" transform="translate(512 0) scale(-1 1)"/>
+    <use href="#a" fill="url(#blue)" stroke="#101E3C" stroke-width="8" stroke-linejoin="miter"/>
+  </g>
 </svg>
