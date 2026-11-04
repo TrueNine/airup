@@ -1,10 +1,10 @@
 ---
 name: airup-dev-tdd
 description: "适用于全新 feature development, 缺陷 fix, 行为保持型 refactor, 特征 tests 以及先刻画后 fix work 的纯 TDD workflow. 当 Codex 需要以 tests 优先的纪律从零构建新行为, or 在不引起行为漂移的前提下修改现有 code 时使用. 适用于各种 language and 架构. 当存在 Gherkin .feature 行为契约时, 将每个 Scenario 纳入 tests 范围, 作为 RED-GREEN 切片与验收追踪的锚点. 不要用于技术栈专用分层 rule, 仅文档 edit, 简单格式调整, or 不期望产生可 execution 行为的纯探索性原型."
-version: "0.2.33"
+version: "0.2.34"
 license: "GPL-3.0-only"
 metadata:
-  version: "0.2.33"
+  version: "0.2.34"
 ---
 
 # Dev TDD
