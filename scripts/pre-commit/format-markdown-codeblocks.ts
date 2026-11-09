@@ -145,7 +145,7 @@ function main(args: string[] = process.argv.slice(2)): number {
   return changed && !write ? 1 : 0
 }
 
-function checkStagedMarkdown(): number {
+export function checkStagedMarkdown(): number {
   const listed = Bun.spawnSync({
     cmd: ['git', 'diff', '--cached', '--name-only', '-z', '--diff-filter=ACMR', '--', '*.md'],
     stdout: 'pipe',

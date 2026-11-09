@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from 'bun:test'
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
-import { createScriptLogger, resolvePluginRoot, runLoggedScript, runLoggedScriptAsync } from '@/shared/script-logger'
+import { join, resolve } from 'node:path'
+import { createScriptLogger, resolvePluginRoot, runLoggedScript, runLoggedScriptAsync, SESSION_ENV_NAMES } from '@/shared/script-logger'
 
 interface LogEntry {
   timestamp: string
@@ -29,9 +29,8 @@ const operationalScriptPaths = [
   'skills/airup-codex-assets/scripts/airup-codex-assets.ts',
   'skills/airup-codex-assets/scripts/trust-codex-hooks.ts',
   'skills/airup-ddd-event-storming-design/scripts/validate-ddd-design.ts',
+  'skills/airup-dev-tdd/scripts/tdd-checkpoint.ts',
   'skills/airup-iam-access-control-design/scripts/validate-authorization-identifiers.ts',
-  'skills/airup-dev-tdd/scripts/check-template-extraction.ts',
-  'skills/airup-dev-tdd/scripts/validate-tdd-protocol.ts',
 ] as const
 
 function createPluginRoot(): string {
@@ -58,7 +57,7 @@ afterEach(() => {
 })
 
 describe('script session logging', () => {
-  it('creates a sortable minute-sessionId log file under the plugin root', () => {
+  it('derives a per-session log file under the plugin root', () => {
     const pluginRoot = createPluginRoot()
 
     const exitCode = runLoggedScript(
@@ -72,7 +71,7 @@ describe('script session logging', () => {
     )
 
     expect(exitCode).toBe(0)
-    expect(logFiles(pluginRoot)).toEqual(['202607160905-session-abc.log'])
+    expect(logFiles(pluginRoot)).toEqual(['session-abc.log'])
     expect(logEntries(pluginRoot, logFiles(pluginRoot)[0])).toMatchObject([
       {
         level: 'info',
@@ -112,7 +111,7 @@ describe('script session logging', () => {
       () => 2,
     )
 
-    expect(logFiles(pluginRoot)).toEqual(['202607160905-same-session.log'])
+    expect(logFiles(pluginRoot)).toEqual(['same-session.log'])
     expect(logEntries(pluginRoot, logFiles(pluginRoot)[0]).map((entry) => `${entry.script}:${entry.event}:${entry.exitCode ?? ''}`)).toEqual([
       'first-script:script.start:',
       'first-script:script.finish:0',
@@ -143,7 +142,7 @@ describe('script session logging', () => {
       () => 0,
     )
 
-    expect(logFiles(pluginRoot)).toEqual(['202607160905-session-one.log', '202607160906-session-two.log'])
+    expect(logFiles(pluginRoot)).toEqual(['session-one.log', 'session-two.log'])
   })
 
   it('keeps sessionIds with different unsafe filename characters separate', () => {
@@ -161,7 +160,7 @@ describe('script session logging', () => {
       )
     }
 
-    expect(logFiles(pluginRoot)).toEqual(['202607160905-session%2Fa.log', '202607160905-session%3Fa.log'])
+    expect(logFiles(pluginRoot)).toEqual(['session%2Fa.log', 'session%3Fa.log'])
   })
 
   it('records console output and thrown errors without swallowing the error', () => {
@@ -279,53 +278,50 @@ describe('script session logging', () => {
     expect(entries[2]?.exitCode).toBe(4)
   })
 
-  it('uses the earliest matching log and ignores directories and malformed names', () => {
+  it('derives the log path deterministically regardless of existing log files', () => {
     const pluginRoot = createPluginRoot()
     const logDir = join(pluginRoot, '.logs')
-    // Ensure the directory exists before constructing controlled entries.
+    // Legacy timestamped names, directories, and suffixed files must not influence the path.
     createScriptLogger({ pluginRoot, scriptName: 'setup', sessionId: 'setup', now: new Date(2026, 0, 2, 3, 4) })
     mkdirSync(join(logDir, '202601020303-reused.log'))
     writeFileSync(join(logDir, '202601020304-reused.log'), '')
     writeFileSync(join(logDir, '202601020305-reused.log'), '')
-    writeFileSync(join(logDir, '20260102030-reused.log'), '')
     writeFileSync(join(logDir, 'prefix202601020304-reused.log'), '')
     writeFileSync(join(logDir, '202601020304-reused.log.bak'), '')
     const logger = createScriptLogger({ pluginRoot, scriptName: 'reuse', sessionId: 'reused', now: new Date(2026, 0, 2, 3, 6) })
 
-    expect(logger.filePath).toBe(join(logDir, '202601020304-reused.log'))
-  })
-
-  it('does not reuse filenames with extra prefixes or suffixes', () => {
-    const pluginRoot = createPluginRoot()
-    const logDir = join(pluginRoot, '.logs')
-    mkdirSync(logDir)
-    writeFileSync(join(logDir, 'prefix202601020304-malformed.log'), '')
-    writeFileSync(join(logDir, '202601020304-malformed.log.bak'), '')
-
-    const logger = createScriptLogger({ pluginRoot, scriptName: 'anchors', sessionId: 'malformed', now: new Date(2026, 0, 2, 3, 6) })
-    expect(logger.filePath).toBe(join(logDir, '202601020306-malformed.log'))
+    expect(logger.filePath).toBe(join(logDir, 'reused.log'))
   })
 
   it('falls back for blank and unencodable session IDs and for non-Error throws', () => {
-    const pluginRoot = createPluginRoot()
-    const blank = createScriptLogger({ pluginRoot, scriptName: 'blank', sessionId: '   ', now: new Date(2026, 0, 2, 3, 4) })
-    const invalid = createScriptLogger({ pluginRoot, scriptName: 'invalid', sessionId: '\ud800', now: new Date(2026, 0, 2, 3, 4) })
-    const padded = createScriptLogger({ pluginRoot, scriptName: 'padded', sessionId: ' padded ', now: new Date(2026, 0, 2, 3, 4) })
-    expect(blank.sessionId).toBe(`standalone-${process.pid}`)
-    expect(blank.filePath).toEndWith(`-standalone-${process.pid}.log`)
-    expect(invalid.filePath).toEndWith(`-encoded-${Buffer.from('\ud800').toString('base64url')}.log`)
-    expect(padded.sessionId).toBe('padded')
-    expect(padded.filePath).toEndWith('-padded.log')
+    const previousSessionEnv = Object.fromEntries(SESSION_ENV_NAMES.map((name) => [name, process.env[name]]))
+    try {
+      for (const name of SESSION_ENV_NAMES) delete process.env[name]
+      const pluginRoot = createPluginRoot()
+      const blank = createScriptLogger({ pluginRoot, scriptName: 'blank', sessionId: '   ', now: new Date(2026, 0, 2, 3, 4) })
+      const invalid = createScriptLogger({ pluginRoot, scriptName: 'invalid', sessionId: '\ud800', now: new Date(2026, 0, 2, 3, 4) })
+      const padded = createScriptLogger({ pluginRoot, scriptName: 'padded', sessionId: ' padded ', now: new Date(2026, 0, 2, 3, 4) })
+      expect(blank.sessionId).toBe(`standalone-${process.pid}`)
+      expect(blank.filePath).toEndWith(`standalone-${process.pid}.log`)
+      expect(invalid.filePath).toEndWith(`encoded-${Buffer.from('\ud800').toString('base64url')}.log`)
+      expect(padded.sessionId).toBe('padded')
+      expect(padded.filePath).toEndWith('padded.log')
 
-    expect(() =>
-      runLoggedScript({ pluginRoot, scriptName: 'throw-string', sessionId: 'throw-string', now: new Date(2026, 0, 2, 3, 4) }, () => {
-        throw 'failure value'
-      }),
-    ).toThrow('failure value')
-    expect(logEntries(pluginRoot, '202601020304-throw-string.log').at(-1)).toMatchObject({
-      event: 'script.error',
-      message: 'failure value',
-    })
+      expect(() =>
+        runLoggedScript({ pluginRoot, scriptName: 'throw-string', sessionId: 'throw-string', now: new Date(2026, 0, 2, 3, 4) }, () => {
+          throw 'failure value'
+        }),
+      ).toThrow('failure value')
+      expect(logEntries(pluginRoot, 'throw-string.log').at(-1)).toMatchObject({
+        event: 'script.error',
+        message: 'failure value',
+      })
+    } finally {
+      for (const [name, value] of Object.entries(previousSessionEnv)) {
+        if (value === undefined) delete process.env[name]
+        else process.env[name] = value
+      }
+    }
   })
 
   it('preserves explicit details when payload is absent', () => {
@@ -343,7 +339,7 @@ describe('script session logging', () => {
     ancient.setFullYear(26, 0, 2)
     ancient.setHours(3, 4, 0, 0)
     runLoggedScript({ pluginRoot, scriptName: 'primitive', sessionId: 'primitive', payload: 42, details: { custom: 'kept' }, now: ancient }, () => 0)
-    expect(logFiles(pluginRoot)).toEqual(['002601020304-primitive.log'])
+    expect(logFiles(pluginRoot)).toEqual(['primitive.log'])
     expect(logEntries(pluginRoot, logFiles(pluginRoot)[0])[0]).toMatchObject({ custom: 'kept' })
   })
 
@@ -374,10 +370,10 @@ describe('script session logging', () => {
     try {
       process.env.AIRUP_PLUGIN_ROOT = '/airup-root'
       process.env.PLUGIN_ROOT = '/plugin-root'
-      expect(resolvePluginRoot('/configured-root')).toBe('/configured-root')
-      expect(resolvePluginRoot()).toBe('/airup-root')
+      expect(resolvePluginRoot('/configured-root')).toBe(resolve('/configured-root'))
+      expect(resolvePluginRoot()).toBe(resolve('/airup-root'))
       delete process.env.AIRUP_PLUGIN_ROOT
-      expect(resolvePluginRoot()).toBe('/plugin-root')
+      expect(resolvePluginRoot()).toBe(resolve('/plugin-root'))
       delete process.env.PLUGIN_ROOT
       expect(resolvePluginRoot()).toBe(repositoryRoot)
     } finally {
@@ -439,7 +435,7 @@ describe('operational script logging coverage', () => {
 
     expect(result.exitCode).toBe(0)
     expect(result.stdout.toString()).toContain('Airup mode')
-    expect(logFiles(pluginRoot)[0]).toMatch(/^\d{12}-hook-session\.log$/)
+    expect(logFiles(pluginRoot)[0]).toBe('hook-session.log')
     expect(logEntries(pluginRoot, logFiles(pluginRoot)[0])).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

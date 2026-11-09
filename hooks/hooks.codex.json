@@ -5,19 +5,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"${PLUGIN_ROOT}/skills/airup-codex-assets/scripts/airup-codex-assets.ts\" hydrate",
-            "statusMessage": "airup: ensuring managed subagent tomls exist"
-          },
-          {
-            "type": "command",
-            "command": "bun \"${PLUGIN_ROOT}/skills/airup-codex-assets/scripts/airup-codex-assets.ts\" sync-project-gitignore",
-            "statusMessage": "airup: ensuring project gitignore rules exist"
-          },
-          {
-            "type": "command",
-            "command": "bun \"${PLUGIN_ROOT}/hooks/session-start/update-protected-branches.ts\"",
-            "timeout": 120,
-            "statusMessage": "airup: updating protected branches"
+            "command": "bun \"${PLUGIN_ROOT}/skills/airup-codex-assets/scripts/airup-codex-assets.ts\" session-start",
+            "timeout": 300,
+            "statusMessage": "airup: hydrating managed assets, project gitignore and protected branches"
           }
         ]
       }

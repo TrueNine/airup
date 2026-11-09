@@ -141,7 +141,7 @@ function syncFileToIndex(root: string, relativePath: string, stagedContent: Buff
 }
 
 function main(): number {
-  const root = resolve(import.meta.dir, '..')
+  const root = resolve(import.meta.dir, '../..')
   const result = syncStagedVersionAlignment(root)
   console.log(`Staged release versions synchronized: ${result.version}`)
   return 0

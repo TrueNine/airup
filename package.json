@@ -6,23 +6,23 @@
   "private": false,
   "packageManager": "bun@1.3.14",
   "scripts": {
-    "check:skill-eof": "bun scripts/ensure-skill-eof.ts",
-    "check:skill-versions": "bun scripts/check-staged-skill-versions.ts",
+    "check:skill-eof": "bun scripts/pre-commit/ensure-skill-eof.ts",
+    "check:skill-versions": "bun scripts/pre-commit/check-staged-skill-versions.ts",
     "check:skill-metadata": "bun scripts/check-skill-metadata.ts",
-    "sync:versions:staged": "bun scripts/sync-staged-versions.ts",
+    "sync:versions:staged": "bun scripts/pre-commit/sync-staged-versions.ts",
     "test": "bun test",
     "test:coverage": "bun test --coverage",
     "test:mutation": "stryker run stryker.config.ts",
     "test:repository-scripts": "bun test scripts/",
-    "test:validators": "bun test skills/df-dev-tdd/scripts/ skills/df-ddd-event-storming-design/scripts/ skills/df-iam-access-control-design/scripts/ skills/df-dev-bdd/scripts/",
+    "test:validators": "bun test skills/airup-dev-tdd/scripts/ skills/airup-ddd-event-storming-design/scripts/ skills/airup-iam-access-control-design/scripts/ skills/airup-dev-bdd/scripts/",
     "typecheck": "bunx tsc --noEmit",
     "format": "bunx biome format --write .",
     "format:check": "bunx biome format .",
-    "format:markdown": "bun scripts/format-markdown-codeblocks.ts",
-    "format:markdown:staged": "bun scripts/format-markdown-codeblocks.ts --staged",
-    "format:markdown:write": "bun scripts/format-markdown-codeblocks.ts --write",
+    "format:markdown": "bun scripts/pre-commit/format-markdown-codeblocks.ts",
+    "format:markdown:staged": "bun scripts/pre-commit/format-markdown-codeblocks.ts --staged",
+    "format:markdown:write": "bun scripts/pre-commit/format-markdown-codeblocks.ts --write",
     "lint": "bunx biome check .",
-    "prepare": "husky"
+    "prepare": "lefthook install"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.12",
@@ -30,7 +30,7 @@
     "@stryker-mutator/api": "^10.0.0",
     "@stryker-mutator/core": "^10.0.0",
     "@types/bun": "^1.4.1",
-    "husky": "^9.1.7",
+    "lefthook": "^2.2.2",
     "typescript": "^7.0.2"
   }
 }

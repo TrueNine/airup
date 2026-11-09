@@ -104,7 +104,7 @@ export function shouldBlockOpenCodeTool(
   if (!decision) return undefined
   if (decision.escalation) return decision
   if (isGlobalGitPushDecision(decision)) {
-    if (isDfOpsVcsManager) {
+    if (isAirupOpsVcsManager) {
       const effectiveCwd = decision.cwd ?? cwd
       if (effectiveCwd) {
         const pbDecision = protectedBranchWriteDecision(effectiveCwd, decision.reason)

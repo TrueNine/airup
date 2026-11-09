@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { AGENT_TOML_PATHS, computeManagedAssetHash, HASH_FILE_PATH, MANAGED_ASSET_PATHS } from '../skills/airup-codex-assets/scripts/airup-codex-assets'
-import { checkStagedSkillVersions } from './check-staged-skill-versions'
+import { checkStagedSkillVersions } from './pre-commit/check-staged-skill-versions'
 
 const AGENT_EOF_MARKER = '# DF_AGENT_EOF'
 
@@ -17,7 +17,7 @@ afterEach(() => {
 })
 
 function createRepository(): string {
-  const root = mkdtempSync(join(tmpdir(), 'airup-husky-hash-'))
+  const root = mkdtempSync(join(tmpdir(), 'airup-lefthook-hash-'))
   tempRoots.push(root)
   for (const path of MANAGED_ASSET_PATHS) {
     const absolutePath = join(root, path)
@@ -62,7 +62,7 @@ function writeSkill(root: string, skill: string, version: string, body = 'baseli
   return path
 }
 
-describe('Husky managed asset hash', () => {
+describe('Lefthook managed asset hash', () => {
   it('requires a changed staged skill to increment both version fields once', () => {
     const root = createRepository()
     writeSkill(root, 'airup-example', '1.2.3')
@@ -157,26 +157,29 @@ describe('Husky managed asset hash', () => {
     expect(git(root, 'diff', '--cached', '--name-only')).toContain(HASH_FILE_PATH)
   })
 
-  it('configures Husky quality and managed asset gates before commit', () => {
+  it('configures Lefthook quality and managed asset gates before commit', () => {
     const packageJson = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8')) as {
       devDependencies?: Record<string, string>
       scripts?: Record<string, string>
     }
-    const hookPath = join(ROOT, '.husky', 'pre-commit')
+    const lefthookConfig = readFileSync(join(ROOT, 'lefthook.yml'), 'utf-8')
+    const entryScript = readFileSync(join(ROOT, 'scripts', 'pre-commit', 'pre-commit.ts'), 'utf-8')
 
-    expect(packageJson.scripts?.prepare).toBe('husky')
-    expect(packageJson.devDependencies?.husky).toBeDefined()
-    expect(existsSync(hookPath)).toBe(true)
-    expect(readFileSync(hookPath, 'utf-8').trim()).toBe(
-      [
-        'bun run check:skill-eof',
-        'bun run format:markdown:staged',
-        'bun run format:check',
-        'bun run lint',
-        'bun run check:skill-versions',
-        'bun run sync:versions:staged',
-        'bun skills/airup-codex-assets/scripts/airup-codex-assets.ts sync-staged',
-      ].join('\n'),
-    )
+    expect(packageJson.scripts?.prepare).toBe('lefthook install')
+    expect(packageJson.devDependencies?.lefthook).toBeDefined()
+    expect(packageJson.devDependencies?.husky).toBeUndefined()
+    expect(existsSync(join(ROOT, '.husky'))).toBe(false)
+    expect(lefthookConfig).toContain('run: bun scripts/pre-commit/pre-commit.ts')
+    for (const step of [
+      'ensureSkillEofMarkers',
+      'checkStagedMarkdown',
+      "biome(['format', '.'])",
+      "biome(['check', '.'])",
+      'checkStagedSkillVersions',
+      'syncStagedVersionAlignment',
+      "runCli(['sync-staged'])",
+    ]) {
+      expect(entryScript).toContain(step)
+    }
   })
 })
