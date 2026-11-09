@@ -1,6 +1,6 @@
 {
   "name": "airup",
-  "version": "0.2.39",
+  "version": "0.2.40",
   "description": "Airup engineering workflow and agent harness for Codex, combining skills, hooks, MCP integration, specialized agents, execution constraints, and feedback loops.",
   "author": {
     "name": "TrueNine",
