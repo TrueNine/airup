@@ -1,96 +1,38 @@
 ---
 name: airup-release-goal-governance
-description: "create, update, execution or 关闭 GitHub milestone, release plan, release check list, tagged release, goal/roadmap issue set, deployment-proof workflow, failure review or process feedback loop 时使用; 这些 work 必须保持 issue scope, milestone description, Mermaid diagram, draw.io diagram, template and workflow skill consistent."
-version: "0.2.28"
+description: "维护 milestone、release、图表与 skill 的发布治理一致性:目标与非目标先行,发布以命令与 exit code 证据开闸,失败复盘闭环落盘到 issue、模板或 skill,而非留在对话记录。创建、执行或关闭 milestone 与 release 时使用。"
+version: "0.2.29"
 license: "GPL-3.0-only"
 metadata:
-  version: "0.2.28"
+  version: "0.2.29"
 ---
 
 # Release Goal Governance
 
-当 work 从 single code change 扩展到 release, milestone or goal governance 时, 使用此 skill.
+当工作从单个代码变更扩展到 release、milestone 或 goal 治理时使用此 skill。
 
 ## Core Rule
 
-Milestone, release, diagram, template and skill 必须 description 相同 workflow. if 实际情况 change 了其中1项, 应 update other 项, or 记录它们有意保持差异的原因.
+Milestone、release、diagram、template 与 skill 必须描述同一 workflow;任一项变化时更新其余项,或记录有意保持差异的原因。
 
-## When Starting A Milestone
+## Milestone
 
-1. check 现有 label, milestone, open issue and release/tag 约定.
-2. create or update milestone, 并 include:
-   - goal and non-goal
-   - planned issue
-   - success criteria
-   - verification gate
-   - closeout and failure-review 链接 or placeholder
-3. 将相关 issue 绑定到 milestone.
-4. 确保 issue label 能区分 release work, milestone planning, goal, roadmap item, docs and automation/process work.
-5. if 当前 process 需要 template 未涵盖的 field, update milestone plan template.
-6. milestone workflow 变化时, update Mermaid and draw.io diagram.
+创建或更新 milestone 时写明 goal 与 non-goal、planned issue、success criteria 与 verification gate,并把相关 issue 绑定到 milestone;label 只需能区分 release、goal、docs 与 process 工作。关闭时收集已合并 PR、release/tag 链接与验证命令,登记 carried-forward issue,并用 residual risk 更新 closeout note。
 
-## When Executing A Release
+## Release
 
-1. create tag or release 前, 根据 repository policy 确认 version/tag 格式.
-2. 验证 milestone scope and required issue 是否为当前状态.
-3. run repository 的 release gate, 并记录命令 and exit code.
-4. 仅在 release gate evidence available 后 create tag.
-5. create or update GitHub release, 并 include:
-   - tag
-   - 已链接的 milestone
-   - 已链接的 PR/issue
-   - verification summary
-   - deployment proof, or 其 pending 的明确原因
-6. if 重复 execution 的 release step 缺失 or 已过时, update release check list template.
+创建 tag 或 release 前按 repository policy 确认 version/tag 格式,验证 milestone scope,运行 release gate 并记录命令与 exit code;仅在证据可用后打 tag。GitHub release 附上 tag、milestone、PR/issue 链接、verification summary 与 deployment proof(或其 pending 原因);重复执行的 release 步骤缺失或过时时,更新 release checklist template。证据格式遵循 `airup-dev-engineering-standards` 的 Evidence Standard。
 
-## When Reviewing Failure
+## Failure Review
 
-当 gate 失败, release 被 rollback, 缺少 deployment proof, or process mistake 导致返工时, create failure review.
+Gate 失败、release 回滚、缺少 deployment proof 或流程失误导致返工时,写 failure review:对比 expected 与 actual、附 evidence(命令 exit code 或外部证明链接)、给出 root cause、corrective action 与 regression gate。不要只用聊天总结结束闭环;把 follow-up 落盘到 issue、template、diagram 或 skill,暴露重复失误或缺失 SOP 时更新对应 workflow skill。
 
-Failure review 必须 include:
+## Diagram Sync
 
-- expected and actual behavior 对比
-- evidence, include 命令 exit code or external proof link
-- root cause
-- corrective action
-- regression gate or check list update
-- Mermaid, draw.io, template or skill 是否需要 change
+Mermaid block 服务于 Markdown 中的轻量流程评审,draw.io(`.airup-drawio.svg`)是持久可编辑的 source;在 milestone 开始、release 执行、failure review 与 closeout 四个边界同步两者。沿用仓库既有 diagram 风格与校验命令,提交前用 XML parser 验证 draw.io 文件。
 
-不要仅用 chat summary 结束反馈闭环. 将持久化的 follow-up work 放入 issue, template, diagram or skill.
+## Handoff
 
-## When Closing A Milestone
-
-1. 收集 closed issue, merged PR, release/tag link, deployment proof and verification command.
-2. 识别 carried-forward issue, 并将其分配到后续 milestone or backlog 状态.
-3. 记录 lightweight metric:
-   - planned issue
-   - closed issue
-   - carried issue
-   - verification command
-   - failure review
-   - release proof link
-4. 使用 residual risk and 后续 action update closeout note.
-5. if 真实 workflow and 文档化 workflow 不同, update Mermaid and draw.io diagram.
-6. if closeout 暴露出重复的 agent mistake or 缺失 SOP, update workflow skill.
-
-## Diagram Requirements
-
-- Mermaid block 用于 Markdown 中 lightweight, 可评审的 process flow.
-- Draw. io or `.airup-drawio.svg` 用于持久且可 edit 的 source diagram.
-- 在 process boundary 保持两者同步: milestone start, release execution, failure review and milestone closeout.
-- if repository 中存在既有 diagram style, file path and validation command, 应沿用它们.
-- 提交前, 使用 available 的 XML parser verify draw.io XML or SVG.
-
-## Handoff Checklist
-
-PR or 最终 handoff 前, 报告:
-
-- milestone URL or identifier
-- 已绑定, 评论, 关闭 or carried forward 的 issue
-- 已 create 时的 release/tag URL
-- 已修改的 template and diagram file
-- 已进行 or 有意跳过的 skill update
-- verification command and exit code
-- incomplete item or blocker
+报告 milestone 标识、已处理与 carried-forward 的 issue、release/tag 链接、改动的 template 与 diagram、已做或有意跳过的 skill update、验证命令及 exit code、未完成项与 blocker。
 
 <!-- AIRUP_RELEASE_GOAL_GOVERNANCE_SKILL_EOF: This is the complete AirupReleaseGoalGovernance skill. Do not request additional lines. -->

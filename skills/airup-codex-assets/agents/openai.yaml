@@ -1,4 +1,4 @@
 interface:
   display_name: "Codex Assets"
-  short_description: "在 other hook run 前, 将 Airup Codex hook runtime 资产引导至已 install 的 plugin 镜像."
-  default_prompt: "使用 $airup-codex-assets."
+  short_description: "内部 skill:在其余 hook 运行前,把 Airup 托管的 Codex hook runtime 资产引导到已安装的插件镜像,并提供显式信任 hook 的命令。"
+  default_prompt: "使用 $airup-codex-assets 在会话开始时引导 Codex hook runtime 资产,需要显式信任 hook 时也由它执行。"

@@ -40,7 +40,7 @@ export const SUBAGENT_HASH_FILE_PATH = 'skills/airup-codex-assets/assets/subagen
 export const PROJECT_GITIGNORE_TEMPLATE_PATH = 'skills/airup-codex-assets/assets/.gitignore'
 export const PROJECT_GITIGNORE_START = '# BEGIN AIRUP MANAGED'
 export const PROJECT_GITIGNORE_END = '# END AIRUP MANAGED'
-export const DEFAULT_REPOSITORY = 'LiTeXz/airup'
+export const DEFAULT_REPOSITORY = 'TrueNine/airup'
 
 export type FetchLike = (input: string | URL | Request, init?: RequestInit) => Promise<Response>
 
@@ -417,6 +417,19 @@ function printCheckMismatch(mismatch: HashMismatch, error: (message: string) => 
   error(`update with:   ${mismatch.updateCommand}`)
 }
 
+async function runSessionStartProtectedBranchUpdate(payload: HookPayload | null): Promise<number> {
+  try {
+    // Hydration has just verified the managed files, so the src/shared dependencies of the
+    // protected-branch hook are safe to load here. Keep this import dynamic: a static one
+    // would break the bootstrap's independence from hydratable files.
+    const { runUpdateProtectedBranchesHook } = await import('../../../hooks/session-start/update-protected-branches')
+    return runUpdateProtectedBranchesHook(payload)
+  } catch (error) {
+    console.error(`Airup 无法加载受保护分支更新脚本：${error instanceof Error ? error.message : String(error)}`)
+    return 1
+  }
+}
+
 export async function runCli(args: string[] = process.argv.slice(2), payload: HookPayload | null = null): Promise<number> {
   const command = args[0] ?? 'check'
   const pluginRoot = process.env.PLUGIN_ROOT || defaultPluginRoot()
@@ -449,6 +462,15 @@ export async function runCli(args: string[] = process.argv.slice(2), payload: Ho
       if (projectRoot) installProjectAgent(pluginRoot, projectRoot)
       return 0
     }
+    if (command === 'session-start') {
+      await hydrateManagedAssets(pluginRoot)
+      const projectRoot = projectRootFromPayload(payload)
+      if (!projectRoot) return 0
+      installProjectAgent(pluginRoot, projectRoot)
+      const gitignoreResult = syncProjectGitignore(pluginRoot, projectRoot)
+      if (gitignoreResult.warning) console.warn(gitignoreResult.warning)
+      return runSessionStartProtectedBranchUpdate(payload)
+    }
     if (command === 'sync-project-gitignore') {
       const projectRoot = projectRootFromPayload(payload)
       if (!projectRoot) return 0
@@ -463,7 +485,7 @@ export async function runCli(args: string[] = process.argv.slice(2), payload: Ho
       return 0
     }
     console.error(`Unknown command: ${command}`)
-    console.error('Usage: airup-codex-assets.ts <compute|compute-subagents|check|hydrate|sync-project-gitignore|sync-staged>')
+    console.error('Usage: airup-codex-assets.ts <compute|compute-subagents|check|hydrate|session-start|sync-project-gitignore|sync-staged>')
     return 2
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error))

@@ -1,0 +1,6 @@
+tdd[5]{phase,slice,cmd,exit,note}:
+  start,login-rate-limit,none,0,"用户每分钟最多 5 次登录"
+  red,login-rate-limit,bun test login.test.ts,1,"429 未生效"
+  scan,login-rate-limit,none,0,"next: 并发登录; deferred: 时钟偏移"
+  green,login-rate-limit,bun test login.test.ts,0,"429 生效"
+  finish,login-rate-limit,bun run lint,0,none

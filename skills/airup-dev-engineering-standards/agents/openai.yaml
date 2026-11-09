@@ -1,4 +1,4 @@
 interface:
   display_name: "Dev Engineering Standards"
-  short_description: "按权威工程规范处理架构、API、安全、输入边界、Java 代码规范和代码评审任务"
+  short_description: "为架构、API、安全、输入边界、Java 风格和代码评审等规范敏感任务选择权威工程标准,并统一结构化输出格式与验证证据标准。也负责仓库工具卫生整理。"
   default_prompt: "使用 $airup-dev-engineering-standards 为当前规范敏感任务选择权威标准并形成可验证的工程决策。"

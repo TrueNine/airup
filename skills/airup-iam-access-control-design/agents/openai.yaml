@@ -1,4 +1,4 @@
 interface:
   display_name: "Iam Access Control Design"
-  short_description: "设计并评审适用于 REST, GraphQL, gRPC, protobuf and 混合 API surface 的严格 Google Cloud IAM-style 授权 directory, 覆盖 RBAC and ABAC. 当 Codex 需要命名 permission or role, definition role binding and CEL condition, 将 API operation mapping 到授权 check, 迁移旧式冒号分隔 permission, or 防止出现多套授权命名方案时使用."
-  default_prompt: "使用 $airup-iam-access-control-design 设计严格的 IAM permission catalog and RBAC/ABAC binding."
+  short_description: "设计或审计 IAM 式访问控制:`service.resource.verb` 权限目录、角色与绑定模型、REST/GraphQL/gRPC 映射与 fail-closed 迁移;配套行级验证脚本检查权限与角色标识符合法性。"
+  default_prompt: "设计或评审授权模型时,使用 $airup-iam-access-control-design 生成 `service.resource.verb` 权限目录与角色绑定并完成验证。"

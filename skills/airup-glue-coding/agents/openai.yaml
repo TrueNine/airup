@@ -1,4 +1,4 @@
 interface:
   display_name: "Glue Coding"
-  short_description: "面向 AI implementation 的 Glue Coding workflow, 应复用 local project 材料, 同时避免盲目复制旧结构. 在 domain 歧义已解决 or 被声明为很薄后, 实施规划 or code 前使用, 适用于 and 现有 CRUD 页面, 列表/表单/详情界面, import/导出, 端点, adapter, command handler, projection, tests, 配置, refactor, 迁移, 现代化 or other 可重复 project pattern 相似的 task. 此 skill 会发现 local style pack, 参考 code, example, 文档, AGENTS.md rule and 附近的生产 implementation, 将其归类为 target pattern, legacy pattern, anti-pattern or behavior evidence, 保留正确约定, 并将新 code 限制在预期差异内."
-  default_prompt: "在 domain 结论清晰后使用 $airup-glue-coding, 查找 local code pattern, 保留 project 约定, 并只 implementation 必要差异."
+  short_description: "复用优先的实现工作流:在实施规划或编码前,先发现并归类目标项目的既有模式、示例与风格材料,把新代码约束为已声明的最小差异;遗留代码按目标模式/反模式分类处理,识别可沉淀的复用材料。"
+  default_prompt: "在 domain 结论清晰后使用 $airup-glue-coding, 先发现并复用项目既有模式与材料, 保留项目约定, 只实现必要的差异。"

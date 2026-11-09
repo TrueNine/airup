@@ -1,81 +1,48 @@
 ---
 name: airup-google-aip-api-design
-description: 使用 Google API Improvement Proposals (AIP) 设计, 评审 and refactor resource-oriented HTTP, REST, gRPC transcoding, protobuf and OpenAPI API. 当 Codex 需要依据 Google AIP 指南 create or 评议 API endpoint, REST URI version prefix, resource name, standard method, custom method, pagination, filtering, field mask, error, long-running operation, protobuf service definition or api-linter 配置时使用.
-version: "0.2.28"
+description: "按 Google AIP 设计或评审资源导向 API:先抓取官方当前页面再引用规则,强制检查 AIP-185 版本前缀,输出资源模型、方法表与验证计划;protobuf 配套 api-linter。"
+version: "0.2.29"
 license: "GPL-3.0-only"
 metadata:
-  version: "0.2.28"
+  version: "0.2.29"
 ---
 
 # Google AIP API Design
 
-## Core Rule
-
-绝不要凭记忆应用 or 引用 AIP rule. 在依据某项 rule 作出设计决策, 评审 finding or 建议前, 先获取并阅读当前官方页面.
-
-对于 REST/HTTP API URI 设计 or 评审, AIP-185 是强制要求. 获取并应用 `https://google.aip.dev/185`, 然后 check first URI path segment 是否 include API major version.
-
-使用以下官方来源:
-
-- AIP index:`https://google.aip.dev/`
-- Specific rule:`https://google.aip.dev/{number}`
-- API linter:`https://linter.aip.dev/`
-- API linter source:`https://github.com/googleapis/api-linter`
+设计或评审资源导向 HTTP、gRPC/transcoding、protobuf 或 OpenAPI API 时使用此 skill。核心纪律:绝不凭记忆应用 AIP 规则,引用任何规则前先抓取其当前官方页面。
 
 ## Workflow
 
-1. 识别 API surface: HTTP JSON, gRPC, 带 HTTP transcoding 的 protobuf, OpenAPI or 混合设计.
-2. 阅读 [aip-map.md](references/aip-map.md), 为 task 选择可能相关的 AIP 页面.
-3. 应用所选 rule 前, 先获取相应的官方 AIP 页面.
-4. 对于 REST/HTTP URI path, 在判定 path 可接受前 verify AIP-185 versioning:
-   - Stable API 必须使用 `/v1/...` or `/v2/...` 等 major version prefix.
-   - 不要暴露 `/v1.0/...`,`/v1.1/...` or `/v1.4.2/...` 等 minor or patch version.
-   - 若采用相应 release strategy, Alpha and beta API 必须遵循 AIP-185 stability suffix strategy, 例如 `/v1alpha/...`,`/v1beta/...`,`/v1alpha1/...` or `/v1beta1/...`.
-   - if project 可能由 global context path, gateway, servlet path, API prefix, router group or 类似配置注入 version prefix, 应先 check 并引用该配置, 再判断每个 controller or route 是否必须显式 include prefix.
-   - if 不存在已验证的 global version prefix, 应将缺失 major version prefix 视为 API design finding, 而不是可选建议.
-5. 优先对 resource 建模: resource, collection, parent-child relationship, resource name and canonical identifier.
-6. custom method 之前优先考虑 standard method. 仅当 operation 无法明确 adapt standard method 时, 才使用 custom method.
-7. 显式 definition cross-cutting behavior: pagination, filtering, ordering, field mask, error, idempotency, long-running operation and partial update.
-8. 对于 protobuf API, write `.proto` file 后 run or 建议 run `api-linter`.
-9. 使用带 URL 的 AIP 引用解释 tradeoff, 不要使用模糊引用.
+1. 识别 API surface:HTTP JSON、gRPC、带 HTTP transcoding 的 protobuf、OpenAPI 或混合设计。
+2. 按 [aip-map.md](references/aip-map.md) 选出可能相关的 AIP,逐个抓取 `https://google.aip.dev/{number}` 官方当前页面后再应用。
+3. 对 REST/HTTP URI 先核验 AIP-185 版本前缀,再判定 path 可接受性。
+4. protobuf API 编写 `.proto` 后运行 `api-linter`(如 `api-linter path/to/api.proto`),把输出当 guardrail 而非完整评审。
+
+## Rules
+
+- 常用官方入口:`https://google.aip.dev/`、`https://google.aip.dev/{number}`、`https://linter.aip.dev/`、`https://github.com/googleapis/api-linter`。
+- REST/HTTP URI 强制 AIP-185:stable path 需 `/v1/...` 式 major 前缀,`/v1.0/...` 等 minor/patch 前缀属设计问题,alpha/beta 遵循 AIP-185 suffix 指南(如 `/v1beta/...`)。
+- framework、gateway、router 配置可能全局注入 version prefix 时,先查证该配置再判定各 route;无已验证注入时,缺失 major 前缀按设计 finding 报告,而非可选建议。
+- 优先 resource 建模(resource name、collection、父子关系),standard method 优先于 custom method;显式定义 pagination、filtering、ordering、field mask、error、幂等、partial update 与 long-running operation。
+- 所有 AIP 引用必须带 URL,不用模糊引用;REST 设计需核对规则是否含 protobuf-only 假设。
 
 ## Design Output
 
-设计新 API 时, 产出:
+设计新 API 时产出:资源模型(含 resource name 与父子关系);method/path/RPC 表(用 TOON 表,含 AIP-185 状态、request、response 与相关 AIP URL);请求响应形状、必填字段与幂等行为;适用的分页、过滤、排序、field mask、错误、权限与 LRO 说明;验证计划(protobuf 含 `api-linter`)。方法表示例:
 
-- include resource name and parent-child relationship 的 resource model.
-- endpoint or RPC 表, include method, path/RPC name, REST path 的 AIP-185 version-prefix 状态 or 说明, request, response and 相关 AIP URL.
-- request and response shape, 列出必填 field and idempotency behavior.
-- 适用时, 提供 pagination, filtering, ordering, field mask, error, permission and long-running operation 说明.
-- validation plan; 对于 protobuf API, 应 include `api-linter`.
+```
+methods[2]{method,path,aip185,request,response,ref}:
+  GET,/v1/users/me,ok,User,User,"https://google.aip.dev/131"
+  POST,"/v1/users/me:deactivate",ok,DeactivateRequest,User,"https://google.aip.dev/136"
+```
 
 ## Review Output
 
-评审现有 API 时, 首先列出 finding:
+评审现有 API 时逐条列出 finding:受影响的 endpoint/RPC/schema、被违反的 AIP URL、风险原因与具体改法;证据遵循 `airup-dev-engineering-standards` 的 Evidence Standard。每份评审必须包含 AIP-185 version-prefix finding 或明确的"已检查且可接受"结论;无已验证的全局 prefix 注入时,`GET /users/me` 应报告缺失并改为 `GET /v1/users/me`。无实质问题时明确说明,并列出 residual risk 与未检查的规则。
 
-- severity and 受影响的 endpoint/RPC/schema.
-- 被违反 or 相关的 AIP URL.
-- 当前设计为何有风险 or inconsistent.
-- 具体 replacement design.
+## References
 
-对于 REST/HTTP API, 每次评审都必须 include AIP-185 version-prefix finding, or 明确的"已 check 且可接受"说明. if `GET /users/me`,`PATCH /users/me` or `POST /users/me:deactivate` 等 endpoint 没有经过验证的 global `/v1`-style prefix injection, 应报告其缺失 major version prefix, 并提出改为 `GET /v1/users/me`,`PATCH /v1/users/me` and `POST /v1/users/me:deactivate`.
-
-if 未发现实质问题, 应明确说明, 并列出 residual risk or 未 check 的 rule.
-
-## API Linter
-
-条件允许时, 对 protobuf API surface 使用 `api-linter`:
-
-```bash
-go install github.com/googleapis/api-linter/v2/cmd/api-linter@latest
-api-linter path/to/api.proto
-```
-
-将 linter output 视为有用的 guardrail, 而不是完整设计评审. 部分 AIP 指南需要作出判断并直接阅读 AIP 正文.
-
-## Resources
-
-- 为 task 选择需查阅的 AIP rule 时, 阅读 [aip-map.md](references/aip-map.md).
-- 此 skill 的维护源 repository 为 `https://github.com/LiTeXz/airup`; runtime 仍以当前 target project 及已 install plugin resources 为准.
+- 按 task 选择需查阅的 AIP 规则:[aip-map.md](references/aip-map.md)。
+- 维护源 repository 为 `https://github.com/TrueNine/airup`;运行时以当前 target project 及已安装 plugin resources 为准。
 
 <!-- AIRUP_GOOGLE_AIP_API_DESIGN_SKILL_EOF: This is the complete AirupGoogleAipApiDesign skill. Do not request additional lines. -->
