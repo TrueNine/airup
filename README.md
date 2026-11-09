@@ -40,7 +40,7 @@ Airup 将需求澄清、设计、实现、测试、评审与交付串成可组�
 | ChatGPT / Codex / Codex CLI | Codex 插件 | 已提供 skills、hooks 和插件展示配置 |
 | Cursor | 本地插件 | 已提供 skills 和 Cursor hooks |
 | OpenCode | 本地 TypeScript 插件与 skills 路径 | 已提供适配入口 |
-| Claude Code、GitHub Copilot、Cline 及其他 Agent 工具 | 后续适配 | 尚未提供专用安装入口 |
+| 其他编码 Agent 工具 | 后续适配 | 尚未提供专用安装入口 |
 
 上表说明当前仓库提供的入口，不代表所有宿主已经具备相同能力。其他工具可根据自身的技能加载机制评估复用 `skills/`；hooks、专门角色和执行约束需要对应的宿主适配。
 
@@ -54,7 +54,7 @@ Airup 将需求澄清、设计、实现、测试、评审与交付串成可组�
 安装插件：
 
 ```bash
-codex plugin marketplace add LiTeXz/airup
+codex plugin marketplace add TrueNine/airup
 codex plugin marketplace upgrade airup
 codex plugin add airup@airup
 ```
@@ -70,8 +70,10 @@ codex plugin add airup@airup
 
 在 Codex Desktop 中，hooks 需要用户在 `Settings` → `Hooks` 中显式开启。
 
-![Settings 入口](assets/screenshorts/codex-settings-entrance.png)
-![Hooks 设置](assets/screenshorts/codex-settings-hooks-entrance.png)
+从旧版本升级时，SessionStart hooks 已合并为单条命令；Codex 会将其视为新的 hook，需要在 `Settings` → `Hooks` 中重新审核并信任一次。
+
+![Settings 入口](assets/screenshorts/codex-settings-entrance.webp)
+![Hooks 设置](assets/screenshorts/codex-settings-hooks-entrance.webp)
 
 </details>
 
@@ -125,7 +127,7 @@ New-Item -ItemType Junction -Path "$HOME\.cursor\plugins\local\airup" -Target (G
 
 ### Other Agents
 
-Airup 的适配目标包括 Claude Code、GitHub Copilot、Cline 以及其他 Agent 工具。专用适配入口会随实现加入本仓库，安装方式也会在此补充。
+Airup 的适配目标涵盖更多编码 Agent 工具。专用适配入口会随实现加入本仓库，安装方式也会在此补充。
 
 如果使用的工具能够加载 `SKILL.md`，可以通过该工具支持的方式接入所需技能。技能加载与 hooks、角色和权限机制分别由宿主处理，不能仅凭加载技能就认为全部执行约束已经生效。
 
@@ -133,7 +135,7 @@ Airup 的适配目标包括 Claude Code、GitHub Copilot、Cline 以及其他 Ag
 
 1. 在所用 Agent 工具中安装插件或配置技能加载路径，按宿主要求启用 hooks。
 2. 描述目标、约束与验收条件；宿主支持时，可先进入 Plan 模式。
-3. 使用 `airup-dev-engineering-workflow-route` 选择工作流，再按任务需要完成澄清、建模、计划和实现。
+3. 按任务描述自动匹配技能后，依次完成澄清、建模、计划和实现。
 4. 完成前运行相应验证，记录结果、未验证范围与剩余问题。
 
 长任务通过检查点保留进度；需要多角色协作时，结合宿主提供的 agent 能力执行。可用角色和自动触发方式取决于当前适配。

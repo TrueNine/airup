@@ -3,11 +3,11 @@
   "version": "0.2.39",
   "description": "Airup engineering workflow and agent harness for Codex, combining skills, hooks, MCP integration, specialized agents, execution constraints, and feedback loops.",
   "author": {
-    "name": "LiTeXz",
-    "url": "https://github.com/LiTeXz"
+    "name": "TrueNine",
+    "url": "https://github.com/TrueNine"
   },
-  "homepage": "https://github.com/LiTeXz/airup",
-  "repository": "https://github.com/LiTeXz/airup",
+  "homepage": "https://github.com/TrueNine/airup",
+  "repository": "https://github.com/TrueNine/airup",
   "license": "GPL-3.0-only",
   "keywords": ["codex", "skills", "hooks", "mcp", "agents", "workflow", "ddd", "tdd"],
   "skills": "./skills/",
@@ -15,17 +15,17 @@
   "interface": {
     "displayName": "Airup",
     "shortDescription": "Engineering workflow and agent harness for Codex",
-    "longDescription": "Airup combines composable skills, hooks, MCP integration, specialized agents, and an agent harness for engineering request routing, DDD modeling, TDD handoff, planning, execution, debugging, review, verification, and branch finishing.",
-    "developerName": "LiTeXz",
+    "longDescription": "Airup combines composable skills, hooks, MCP integration, specialized agents, and an agent harness covering requirement clarification, DDD and API design, SDD, BDD and TDD implementation, code review, verification, dependency governance, and release governance.",
+    "developerName": "TrueNine",
     "composerIcon": "./assets/logo.svg",
     "logo": "./assets/logo.png",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Read", "Write"],
-    "websiteURL": "https://github.com/LiTeXz/airup",
+    "websiteURL": "https://github.com/TrueNine/airup",
     "defaultPrompt": [
-      "使用 df-dev-engineering-workflow-route 对此任务分类",
-      "git 和代码托管任务使用 df-ops-vcs-manager Codex worker session。",
-      "创建 DDD 到 TDD 的实施计划",
+      "描述目标、约束与验收条件,由 Airup 技能按任务自动路由",
+      "git 和代码托管任务使用 airup-ops-vcs-manager Codex worker session。",
+      "使用 $airup-ddd-event-storming-design 建模后,用 $airup-implementation-planning 制定实施计划",
       "完成前验证此分支"
     ],
     "brandColor": "#2563EB"

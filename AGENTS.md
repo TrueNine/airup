@@ -37,7 +37,7 @@ Airup skill 名称中的生命周期前缀表示职责范围：
 - development language: TypeScript 7, use ESM,`ESNext` and strict mode, do not generate 编译产物.
 - tests framework: Bun Test.
 - format and static check: Biome 2.5; type check 使用 TypeScript compiler.
-- Git hooks: Husky 9.
+- Git hooks: Lefthook.
 - integration platform: Codex plugin, Codex hooks and OpenCode adapter.
 
 <!-- END:/AGENTS.md -->

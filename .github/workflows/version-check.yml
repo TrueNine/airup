@@ -51,8 +51,8 @@ jobs:
       - name: Check managed Codex asset hash
         run: |
           set -euo pipefail
-          HASH_FILE="skills/df-codex-assets/assets/all.lock"
-          COMPUTED_HASH=$(bun skills/df-codex-assets/scripts/df-codex-assets.ts compute)
+          HASH_FILE="skills/airup-codex-assets/assets/all.lock"
+          COMPUTED_HASH=$(bun skills/airup-codex-assets/scripts/airup-codex-assets.ts compute)
           STORED_HASH=$(tr -d '[:space:]' < "$HASH_FILE")
 
           echo "stored hash:  $STORED_HASH"
@@ -61,14 +61,14 @@ jobs:
           if [ "$COMPUTED_HASH" != "$STORED_HASH" ]; then
             echo "::error::Managed Codex asset hash is stale."
             echo "::error::Correct hash: $COMPUTED_HASH"
-            echo "::error::Update with: bun skills/df-codex-assets/scripts/df-codex-assets.ts compute > $HASH_FILE"
+            echo "::error::Update with: bun skills/airup-codex-assets/scripts/airup-codex-assets.ts compute > $HASH_FILE"
             exit 1
           fi
       - name: Check managed subagent hash
         run: |
           set -euo pipefail
-          HASH_FILE="skills/df-codex-assets/assets/subagent.lock"
-          COMPUTED_HASH=$(bun skills/df-codex-assets/scripts/df-codex-assets.ts compute-subagents)
+          HASH_FILE="skills/airup-codex-assets/assets/subagent.lock"
+          COMPUTED_HASH=$(bun skills/airup-codex-assets/scripts/airup-codex-assets.ts compute-subagents)
           STORED_HASH=$(tr -d '[:space:]' < "$HASH_FILE")
 
           echo "stored subagent hash:  $STORED_HASH"
@@ -77,7 +77,7 @@ jobs:
           if [ "$COMPUTED_HASH" != "$STORED_HASH" ]; then
             echo "::error::Managed subagent hash is stale."
             echo "::error::Correct hash: $COMPUTED_HASH"
-            echo "::error::Update with: bun skills/df-codex-assets/scripts/df-codex-assets.ts compute-subagents > $HASH_FILE"
+            echo "::error::Update with: bun skills/airup-codex-assets/scripts/airup-codex-assets.ts compute-subagents > $HASH_FILE"
             exit 1
           fi
       - name: Check managed Codex assets on version tag
@@ -86,8 +86,8 @@ jobs:
           set -euo pipefail
           VERSION=$(bun -e "console.log(require('./package.json').version)")
           TAG="v${VERSION}"
-          REPO=$(bun -e "const p=require('./.codex-plugin/plugin.json'); const repo=String(p.repository||'https://github.com/LiTeXz/airup'); const m=repo.match(/github\\.com[:/]([^/]+\\/[^/.#]+)(?:\\.git)?/); console.log(m ? m[1] : 'LiTeXz/airup')")
-          HASH_FILE="skills/df-codex-assets/assets/all.lock"
+          REPO=$(bun -e "const p=require('./.codex-plugin/plugin.json'); const repo=String(p.repository||'https://github.com/TrueNine/airup'); const m=repo.match(/github\\.com[:/]([^/]+\\/[^/.#]+)(?:\\.git)?/); console.log(m ? m[1] : 'TrueNine/airup')")
+          HASH_FILE="skills/airup-codex-assets/assets/all.lock"
           STORED_HASH=$(tr -d '[:space:]' < "$HASH_FILE")
 
           if ! git ls-remote --exit-code --tags "https://github.com/${REPO}.git" "refs/tags/${TAG}" >/dev/null 2>&1; then
@@ -111,14 +111,14 @@ jobs:
               echo "::error::Missing managed asset on ${TAG}: ${path}"
               exit 1
             fi
-          done < <(bun -e "import { MANAGED_ASSET_PATHS } from './skills/df-codex-assets/scripts/df-codex-assets.ts'; console.log(MANAGED_ASSET_PATHS.join('\\n'))")
+          done < <(bun -e "import { MANAGED_ASSET_PATHS } from './skills/airup-codex-assets/scripts/airup-codex-assets.ts'; console.log(MANAGED_ASSET_PATHS.join('\\n'))")
 
-          mkdir -p "$TMP_DIR/skills/df-codex-assets/scripts" "$TMP_DIR/skills/df-codex-assets/assets"
-          cp skills/df-codex-assets/scripts/df-codex-assets.ts "$TMP_DIR/skills/df-codex-assets/scripts/df-codex-assets.ts"
-          cp skills/df-codex-assets/scripts/script-logger.ts "$TMP_DIR/skills/df-codex-assets/scripts/script-logger.ts"
+          mkdir -p "$TMP_DIR/skills/airup-codex-assets/scripts" "$TMP_DIR/skills/airup-codex-assets/assets"
+          cp skills/airup-codex-assets/scripts/airup-codex-assets.ts "$TMP_DIR/skills/airup-codex-assets/scripts/airup-codex-assets.ts"
+          cp skills/airup-codex-assets/scripts/script-logger.ts "$TMP_DIR/skills/airup-codex-assets/scripts/script-logger.ts"
           cp "$HASH_FILE" "$TMP_DIR/$HASH_FILE"
 
-          TAG_HASH=$(PLUGIN_ROOT="$TMP_DIR" bun "$TMP_DIR/skills/df-codex-assets/scripts/df-codex-assets.ts" compute)
+          TAG_HASH=$(PLUGIN_ROOT="$TMP_DIR" bun "$TMP_DIR/skills/airup-codex-assets/scripts/airup-codex-assets.ts" compute)
           echo "tag:         $TAG"
           echo "tag hash:    $TAG_HASH"
           echo "stored hash: $STORED_HASH"

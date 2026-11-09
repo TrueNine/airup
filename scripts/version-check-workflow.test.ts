@@ -20,7 +20,7 @@ describe('version-check workflow', () => {
   })
 
   it('uses the Airup repository as the managed asset source', () => {
-    expect(WORKFLOW).toContain('LiTeXz/airup')
+    expect(WORKFLOW).toContain('TrueNine/airup')
   })
 
   it('checks the airup-version marker in every distributable subagent TOML', () => {
