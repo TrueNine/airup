@@ -6,3 +6,6 @@ reports/mutation/
 .stryker-tmp/
 .logs/
 .obsidian/
+.zcode/
+.rewrite-backup/
+.rewrite-style-guide.md

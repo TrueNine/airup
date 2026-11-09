@@ -1,0 +1,5 @@
+# Lefthook configuration. Each git hook delegates to its entry script under scripts/<hook>/.
+pre-commit:
+  commands:
+    airup-pre-commit:
+      run: bun scripts/pre-commit/pre-commit.ts

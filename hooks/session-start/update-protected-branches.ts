@@ -110,9 +110,11 @@ export function writeFailure(error: unknown): void {
   )
 }
 
-function main(payload: Payload | null = readPayload()): number {
-  if (!payload || typeof payload !== 'object') return 0
-  const cwd = findWorkdir(payload, {})
+// The payload is untyped so the merged session-start bootstrap can forward the raw hook payload
+// without importing src/shared (the bootstrap must stay independent from hydratable files).
+export function runUpdateProtectedBranchesHook(payload: unknown): number {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return 0
+  const cwd = findWorkdir(payload as Payload, {})
   try {
     const result = updateProtectedBranches(cwd)
     if (!result.skipped && result.updated.length > 0) {
@@ -127,5 +129,5 @@ function main(payload: Payload | null = readPayload()): number {
 
 if (import.meta.main) {
   const payload = readPayload()
-  process.exit(runLoggedScript({ payload, scriptName: 'update-protected-branches' }, () => main(payload)))
+  process.exit(runLoggedScript({ payload, scriptName: 'update-protected-branches' }, () => runUpdateProtectedBranchesHook(payload)))
 }

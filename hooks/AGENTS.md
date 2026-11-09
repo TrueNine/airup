@@ -58,11 +58,9 @@ this directory 保存 Airup plugin 随附的 Codex lifecycle hooks. this file �
 
 ## Current Configuration
 
-`hooks.codex.json` 当前注册 `SessionStart`,`PreToolUse` and `PostToolUse` matcher group. `SessionStart` 按顺序声明3个 `type: "command"` handler:
+`hooks.codex.json` 当前注册 `SessionStart`,`PreToolUse` and `PostToolUse` matcher group. `SessionStart` 只声明 1 个 `type: "command"` handler, 用单次 `bun` 启动完成全部会话初始化:
 
-- use `${PLUGIN_ROOT}` 定位 installed plugin directory, run `airup-codex-assets.ts hydrate`, 确保受管 subagent 配置集合存在.
-- run `airup-codex-assets.ts sync-project-gitignore`, 确保 project `.gitignore` rule 存在.
-- run `update-protected-branches.ts`, fetch `origin` 并 fast-forward-only update 实际存在的 protected branch.
+- use `${PLUGIN_ROOT}` 定位 installed plugin directory, run `airup-codex-assets.ts session-start`: 先 hydrate 确保受管 subagent 配置与 hook script 存在, 再 sync-project-gitignore 确保 project `.gitignore` rule 存在, 最后动态加载 `update-protected-branches.ts` 的 hook 入口, fetch `origin` 并 fast-forward-only update 实际存在的 protected branch. 对 `update-protected-branches.ts` 使用动态加载是为了保持 bootstrap 与 hydratable 文件的独立性.
 
 `PreToolUse` 对 shell tool run `prevent-git-push-protected-commit.ts`: 禁止任何 Agent push, 并禁止在 protected branch commit.
 

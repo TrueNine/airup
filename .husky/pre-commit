@@ -1,7 +1,0 @@
-bun run check:skill-eof
-bun run format:markdown:staged
-bun run format:check
-bun run lint
-bun run check:skill-versions
-bun run sync:versions:staged
-bun skills/airup-codex-assets/scripts/airup-codex-assets.ts sync-staged
