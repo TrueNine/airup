@@ -1,64 +1,50 @@
 ---
 name: airup-verification-before-completion
-description: "工程 work 的强制完成 gate. 在宣称 development, refactor, 缺陷 fix, 建模, 审查, 文档, 配置, commit or PR task 完成前使用, 用于核验 user 需求, change file, 已 run 命令及 exit code, 跳过的 check, 手动验证, 残余风险以及无关 change."
-version: "0.2.29"
+description: "完成声明前的最后一道闸门:核对用户需求、变更范围、命令证据、跳过项与工作区状态,并在准备 commit/PR 时分离用户专属修改、组织分支收尾。未过清单不得宣称完成。"
+version: "0.2.30"
 license: "GPL-3.0-only"
 metadata:
-  version: "0.2.29"
+  version: "0.2.30"
 ---
 
 # Verification Before Completion
 
-在宣称完成前使用此 skill. 它是完成 gate, 本身不是 tests 策略.
+在宣称开发、重构、修复、审查、文档或配置任务完成前使用本 skill:它是交付前的最后一道闸门,准备 commit 或 PR 时也从这里开始。本 skill 只做核验,不定义测试策略。
 
-## Verification Checklist
+## Checklist
 
-回答 each 项:
+逐项回答,每项给出具体证据:
 
-1. 最终 result 是否满足 user 的 each 项要求?
-2. 哪些 file 发生了 change?
-3. run 了哪些命令, 它们的 exit code 是什么?
-4. 哪些相关 tests or check 未 run, 原因是什么?
-5. 是否进行了手动验证? 具体观察到了什么?
-6. 是否仍有风险, 假设 or 未完成区域?
-7. worktree 中是否有无关 change or user 所有的 change?
-8. if 要求 TDD, 是否有 RED/GREEN/REFACTOR 证据?
-9. if 存在与 `airup-dev-bdd` 确认的 Gherkin `.feature`, 是否每个冻结 Scenario 都有测试、实现切片与验收追踪，且 refactor 未改变行为契约?
-10. if 要求 DDD 建模, 结论是否在持久化前得到确认?
-11. if Spring Web 边界发生变化, 是否覆盖了端点契约 and service 边界扫描?
-12. if 要求 Glue Coding, 使用了哪个 style pack or local target 模式, implementation 了哪些差异; 是否应持久化任何新 rule, 知识, 模式, style pack 材料 or track? 对于 refactor, 避开了哪些遗留模式 or anti-pattern, 又有哪些 characterization 证据保护行为?
+1. 最终结果是否满足用户的每一项要求?
+2. 变更文件是否与任务意图一致,没有夹带无关修改?
+3. 每条已执行的命令是否都有命令行与 exit code 证据?
+4. 每个跳过的检查是否都有明确理由?
+5. 工作区是否只包含本次任务相关的变更?
+6. 要求 TDD 时,`airup-dev-tdd` 的检查点是否已到达 finish?
+7. 存在 Gherkin `.feature` 时,是否完成 `airup-dev-bdd` 的场景验收追踪?
+8. 工作区中用户专属的修改是否完好、未被还原?
 
-## Evidence Standard
+## Branch Finish
 
-使用具体证据:
+- 用 `git status --short` 把工作区分为三类:本次任务变更、用户专属变更、不应提交的生成物。
+- 只暂存任务变更,不提交用户未确认的文件;必要检查未通过时先回到 Checklist 补齐,不带病提交。
+- PR 描述写清目的、关键变更、验证证据、风险与后续,不套固定模板,不编造证据。
 
-- 命令行及 exit code
-- tests name or tests 套件 name
-- file 路径
-- 观察到的行为
-- 跳过的命令及原因
+## Report
 
-不要只 write"tests passed"之类的模糊表述, 而不提供命令 and 范围.
+最终报告遵循 `airup-dev-engineering-standards` 的 Evidence Standard:结论 + TOON 证据表 + 剩余风险。清单未全部通过前,不得宣称完成或使用同等表述。
 
-## Output Format
+## Rules
 
-内部笔记 or 交接 file 使用 [verification-report.md](templates/verification-report.md). 在最终回复中, 简要汇总相同的证据:
+- 不隐瞒跳过的检查,也不暗示验证范围超出实际执行的范围。
+- 缺少必要证据时不宣称完成、不提交,除非用户明确接受该风险。
+- 不忽略工作区中的无关变更与用户专属变更,先分离再收尾。
+- 不重写分支历史,除非用户明确要求。
 
-```markdown
-Completion Status:
-- Satisfied:
-- Changed Files:
-- Verification:
-- Not Run:
-- Remaining Risks:
-```
+## References
 
-## Non-Negotiable Rules
-
-- 在满足此 manifest 前, 不要宣称"已完成"or 使用同等表述.
-- 不要隐瞒跳过的 tests.
-- 不要暗示验证范围比实际 run 的更广.
-- 不要忽略 dirty worktree 中的 change. 应将自己的 edit and 无关 change 分开.
-- if 缺少必要证据, 不要提交, 除非 user 明确接受该风险.
+- 证据表与 TOON 格式见 `airup-dev-engineering-standards` 的 Evidence Standard。
+- TDD 检查点协议见 `airup-dev-tdd`。
+- 场景验收追踪见 `airup-dev-bdd`。
 
 <!-- AIRUP_VERIFICATION_BEFORE_COMPLETION_SKILL_EOF: This is the complete AirupVerificationBeforeCompletion skill. Do not request additional lines. -->

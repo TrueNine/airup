@@ -235,7 +235,7 @@ describe('DDD Design Validation', () => {
     expect(missing.exitCode).toBe(1)
     expect(missing.stderr.toString()).toBe('Usage: validate-ddd-design.ts <path> [--require-sections]\n')
     const [logName] = readdirSync(join(root, '.logs'))
-    expect(logName).toEndWith('-ddd-cli.log')
+    expect(logName).toBe('ddd-cli.log')
     const logEntries = readFileSync(join(root, '.logs', logName as string), 'utf-8')
       .trim()
       .split('\n')

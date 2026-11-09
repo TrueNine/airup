@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dev Code Review"
+  short_description: "以风险优先的代码评审工作流:实现完成后做缺陷导向自审,收到评审意见后按 must_fix/discuss/decline_with_reason/already_addressed/needs_more_context 分类处置并逐条验证。不负责发布或分支操作。"
+  default_prompt: "使用 $airup-dev-code-review 在实现完成后自审变更风险,并在收到评审意见后逐条分类处置与验证。"

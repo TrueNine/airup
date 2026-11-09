@@ -1,55 +1,34 @@
 ---
 name: airup-dev-backend-orm-jimmer
-description: "unified 的 Java/Kotlin Jimmer ORM workflow. 当 Codex 修改 JVM project 中的 Jimmer SQL eneity, APT or KSP generate 源 code, type 安全 query, fetcher, DTO language file, graph save, repository, Spring Boot integration or 持久化 tests 时使用; 同时适用于 Java, Kotlin and 混合 source set."
-version: "0.2.29"
+description: "Jimmer ORM 后端实现纪律:修改 Jimmer 实体、DSL 查询、fetcher、保存语义或 Spring Boot 集成时使用;覆盖注解处理器生成源码的刷新与编译验证、DSL 与 fetcher 的最小测试要求,以及 Spring Web 边界职责护栏(可选配套 airup-dev-tdd 的栈专用扩展)。"
+version: "0.2.30"
 license: "GPL-3.0-only"
 metadata:
-  version: "0.2.29"
+  version: "0.2.30"
 ---
 
 # Dev Backend ORM Jimmer
 
-将 Jimmer 视为围绕不可变 eneity, 编译期 generate code, type 安全 SQL DSL, DTO language, graph query and graph save 构建的 JVM ORM. 不要把它当作使用可变 POJO,`EntityManager`, lazy proxy and JPA cascade rule 的 JPA implementation.
+将 Jimmer 视为围绕不可变实体、编译期生成代码、类型安全 SQL DSL、DTO language、graph query 与 graph save 构建的 JVM ORM,而不是使用可变 POJO、`EntityManager`、lazy proxy 与 JPA cascade 规则的 JPA 实现。本 skill 是 `airup-dev-tdd` 在 Jimmer 技术栈上的可选扩展,适用于 Java、Kotlin 与混合 source set。
 
 ## Workflow
 
-1. check 构建 file, 识别 Java, Kotlin or 混合 source set, 以及 Jimmer 版本, APT/KSP 配置, generate 源 code 布局 and Spring Boot integration 方式.
-2. 搜索现有 eneity, DTO, repository, SQL client, fetcher and tests, 沿用 local 命名, 分层 and generated type 使用方式.
-3. 按 target file 选择 Java or Kotlin rule; 混合 project 逐个 source set 判断, 不要仅按 project 主 language 推断.
-4. 将 change category 为 entity mapping, query DSL, DTO language, graph save, cache, repository, Spring integration, OpenAPI/TypeScript generation or persistence test.
-5. 修改后刷新 generate 源 code, 并 run 覆盖相关 query, save, wiring or mapping 的最小 tests.
+1. 检查构建配置:Jimmer 版本、APT/KSP wiring、生成源码布局与 Spring Boot 集成方式;沿用既有版本与目录,任务未要求时不升级。
+2. 搜索现有实体、DTO、repository、SQL client、fetcher 与测试,沿用本地命名、分层与生成类型用法;混合 project 逐个 source set 判断,按目标语言读 [java.md](references/java.md) 或 [kotlin.md](references/kotlin.md)。
+3. 实体、DTO、table object/class 或 fetcher 变更后,运行能触发对应 APT/KSP 处理器的最小编译任务,确认生成源码已刷新。
+4. 用最小行为测试覆盖 DSL 查询、fetcher、事务与保存语义;repository 或 SQL client 测试断言调用方可观察的结果(graph shape、总数、ordering、association)。
+5. 修改 Controller/Service 前后核对 Web 边界职责(见 Web Boundary Guardrails)。
+6. 完成前在已修改源码中检查意外引入的 `EntityManager`、可变实体 setter、错误 source set 的 DSL 或不符合本地约定的 `jakarta.persistence` 用法。
 
-## Shared Guardrails
+## Web Boundary Guardrails
 
-- 优先沿用 project 现有 Jimmer 版本, 构建 plugin and generate 源 code directory. 除非 task 明确要求, 否则不要硬 code or 升级版本.
-- 保留 `@Entity`,`@Table`,`@Id`,`@GeneratedValue`, association, computed property and logical deletion 等 Jimmer annotation and 语义.
-- 修改 eneity, DTO, mapping, table object/class or fetcher 后, run 能够触发对应 annotation processor 的最小编译 task.
-- 在 type 安全 DSL 中表达动态 predicate, join, ordering, pagination and projection; 仅在 local 模式 or 数据库特性要求时使用局部 native SQL expression.
-- 让 Jimmer 处理适用场景中的 join, pagination count query and implicit subquery, 不要手动复刻 generate 行为.
-- 使用 fetcher or DTO projection 控制 return 的 graph shape, 不要加载 or 暴露范围过宽的 entity graph.
-- 使用 incomplete object graph or input DTO 表达保存意图, 由 Jimmer 处理 graph save, upsert and batch DML; 不要为少量字段 update 预加载完整 graph.
-- 将 DTO language file 视为编译期 input. 复杂 save 优先使用 input DTO, 复杂 query response 优先使用 output DTO; 业务 verify 仍保留在业务层.
-- 保持 controller, service and repository/persistence adapter 边界清晰, 不要将 SQL DSL 散布到无关层.
+- Controller 只做 HTTP 适配(mapping、binding、validation、status、header、multipart、流式响应、security entry point),不做业务规则与持久化编排;业务流、批量与导入导出策略留在 service 层。
+- 导入导出与下载的文件名、content type、`Content-Disposition`、HTTP status 与 servlet streaming 留在 Web 层,并用 API 边界测试(`MockMvc`、`WebTestClient` 或等效)覆盖;直接调用 `controller.method(...)` 只能作为补充,不能替代 endpoint 覆盖。
+- 完成前在改动的 service 中扫描 `org.springframework.http`、`ResponseEntity`、`jakarta.servlet` 等 Web 类型泄漏;既有泄漏不扩大,新逻辑返回应用层结果由 controller 转换为 HTTP response。缺少边界测试时,在最终报告中说明现有覆盖为何足够。
 
-## Language References
+## References
 
-按 target source set and change type 读取对应 reference; 混合 JVM project 可以同时读取 Java and Kotlin reference.
-
-| 范围 | 构建 and 模型 | 查询, 保存 and tests |
-| --- | --- | --- |
-| Java | [java-build-and-model.md](references/java-build-and-model.md) | [java-query-save-testing.md](references/java-query-save-testing.md) |
-| Kotlin | [kotlin-build-and-model.md](references/kotlin-build-and-model.md) | [kotlin-query-save-testing.md](references/kotlin-query-save-testing.md) |
-
-## Testing And Verification
-
-- repository or SQL client tests 应按 change 覆盖 filtering, ordering, pagination, association shape, graph save and constraint 行为.
-- 断言 call 方可观察 result, 以及必要的 SQL-sensitive 行为, 例如 graph shape, 总数, ordering and association 是否存在.
-- 修改 Spring integration 后, run 相关 slice test or integration test, 验证 bean wiring, transaction and repository 行为.
-- 完成前在已修改源 code 中 check 意外引入的 `EntityManager`, 可变 eneity setter, 错误 source set DSL or 不符合 local 约定的 `jakarta.persistence` 用法.
-
-## Official Sources
-
-- Jimmer repository: https://github.com/babyfish-ct/jimmer
-- Jimmer documentation: https://babyfish-ct.github.io/jimmer-doc
+- [java.md](references/java.md):Java source set 的构建接线、DSL 查询、graph save 与测试。
+- [kotlin.md](references/kotlin.md):Kotlin source set 的 KSP 接线、DSL 查询、graph save 与测试。
 
 <!-- AIRUP_DEV_BACKEND_ORM_JIMMER_SKILL_EOF: This is the complete AirupDevBackendOrmJimmer skill. Do not request additional lines. -->

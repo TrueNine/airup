@@ -1,6 +1,6 @@
 interface:
   display_name: "Dev Backend Orm Jimmer"
-  short_description: "unified 的 Java/Kotlin Jimmer ORM workflow. 当 Codex 修改 JVM project 中的 Jimmer SQL eneity, APT or KSP generate 源 code, type 安全 query, fetcher, DTO language file, graph save, repository, Spring Boot integration or 持久化 tests 时使用; 同时适用于 Java, Kotlin and 混合 source set."
-  default_prompt: "修改 Java or Kotlin Jimmer ORM eneity, query, DTO, save or Spring Boot integration 时, 使用 $airup-dev-backend-orm-jimmer."
+  short_description: "Jimmer ORM 后端实现纪律:修改 Jimmer 实体、DSL 查询、fetcher、保存语义或 Spring Boot 集成时使用;覆盖注解处理器生成源码的刷新与编译验证、DSL 与 fetcher 的最小测试要求,以及 Spring Web 边界职责护栏(可选配套 airup-dev-tdd 的栈专用扩展)。"
+  default_prompt: "修改 Java 或 Kotlin 的 Jimmer 实体、DSL 查询、fetcher、保存语义或 Spring Web 边界时, 使用 $airup-dev-backend-orm-jimmer。"
   icon-smaill: "./assets/jimmer-logo.png"
   icon-large: "./assets/jimmer-logo.png"

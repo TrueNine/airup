@@ -1,100 +1,51 @@
 ---
 name: airup-implementation-planning
-description: "code 前 write 具体的小步实施计划. 适用于多步 feature, 缺陷 fix, refactor, DDD-to-TDD 交接, 风险行为 change, or 任何需要在 implementation 前明确 file, 命令, 预期 RED/GREEN result, 验证步骤 and 完成标准的工程 task. 存在 Gherkin .feature 行为契约时, 以其中 Scenario 作为行为切片与验收追踪锚点."
-version: "0.2.30"
+description: "把已确认的需求、DDD 设计或胶水实现选型转成小步可验证的实施计划,并安全执行:每任务给出文件、验证命令与预期 RED/GREEN,偏离即修计划;支持互斥所有权的并行委托。不负责 DDD 建模或代码评审。"
+version: "0.2.31"
 license: "GPL-3.0-only"
 metadata:
-  version: "0.2.30"
+  version: "0.2.31"
 ---
 
 # Implementation Planning
 
-使用此 skill, 将需求, 已确认的 DDD 交接, Glue Coding pattern 选择, 选定的 style pack, 缺陷调查 result or refactor target, 转化为 other execution 者可 execution 的计划.
-
-使用此 skill 时不要 edit 生产 code.
+把已确认的需求、DDD 设计(如 `airup-ddd-event-storming-design` 的产出)、胶水实现选型或缺陷调查结果,转成小步可验证的实施计划并安全执行。规划阶段不修改生产代码;代码评审使用 `airup-dev-code-review`。
 
 ## Planning Workflow
 
-1. 重述 target and 范围.
-2. 列出约束:
-   - 不得 change 的行为
-   - 公共契约
-   - 若存在经 `airup-dev-bdd` 确认的 `.feature`, 行为切片应与其中 Scenario 对应并保持 `@req-` 追踪, 不得凭空发明新的测试或行为结构
-   - 数据, 持久化, 顺序, 分页, 安全 or 副作用风险
-   - 必须保留的选定 style pack, golden example, 特定风格 anti-pattern and 审查 manifest 项
-   - 选定的 Glue target pattern, local 约定, 遗留行为证据, 要移除的 anti-pattern, 以及必须保留的 project 材料
-   - 必须避开的 user 所有 worktree change
-3. 识别行为切片.
-4. 对每项 task 说明:
-   - target
-   - 可能涉及的 file or module
-   - tests or 验证命令
-   - 预期 RED, GREEN or 不变 result
-   - 完成标准
-5. 每项 task 应足够小, 可独立完成并验证.
-6. 标记需要 `airup-dev-tdd`,`airup-spring-web-boundaries` or `airup-systematic-debugging` 的步骤.
-7. 对 Glue 风格 work, if 存在选定的 style pack, 应 include 它, 并 write 明选定的 target pattern 及每项 task 允许 change 的精确差异.
-8. 对 refactor 类 Glue work, 分开 characterization, target pattern 迁移 and 清理步骤. 除非遗留结构被明确归类为 target pattern, 否则不要计划复制它.
-9. 说明 execution 前是否需要 user 确认.
+1. 读需求、既有契约与项目 `AGENTS.md`:重述目标与范围,列出不得改变的行为、公共契约,以及数据、持久化、顺序、安全与并发风险。
+2. 存在经 `airup-dev-bdd` 确认的 `.feature` 时,行为切片与其中 Scenario 对应并保持 `@req-` 追踪,不发明新的行为结构。
+3. 把范围拆成 2-5 分钟可独立验证的行为切片;混杂测试与实现、行为变更与清理、调试与修复的步骤一律拆开。
+4. 每个任务给出:目标文件、验证命令(项目中能发现真实命令时不得省略)、预期 RED/GREEN/unchanged、完成标准。
+5. 标记需要 `airup-dev-tdd` 的任务。
+6. 声明执行前需要用户确认的前提;不假定风险性范围扩张已获批准。
 
-## Step Size
+## Execution
 
-优先采用 2 至 5 分钟的 execution 步骤. if 1 个步骤组合了以下内容, 则应拆分:
+对每个任务循环三步:预检 → 实现 → 记录证据。
 
-- create tests and implementation 生产 code
-- 无关的行为切片
-- 风险各自独立的多个 module
-- refactor and 行为 change
-- debugging and fix
-- code change and commit/PR work
+- 预检计划有效性:切片有测试或验证命令、行为变更写明 RED/GREEN 预期、文件与模块明确、计划与仓库当前状态不冲突;计划不安全时先修订或请求确认再动手。
+- 实现时一次只做一个任务,只运行该任务指定的验证命令,记录一行证据(命令、exit code、结果)。
+- 偏离(意外失败、计划与现实冲突、需要超出计划的文件范围)时停下修订计划,而不是硬编继续;意外失败或新增行为按 `airup-dev-tdd` 处理:先复现与根因证据,再 RED-GREEN。
+- 证据格式遵循 `airup-dev-engineering-standards` 的 Evidence Standard,一行即可。
 
-## Output Format
+## Parallel Delegation
 
-需要 file 产物时使用 [implementation-plan.md](templates/implementation-plan.md). 在对话中使用相同结构:
+- 仅在文件所有权与验证边界互斥时拆分;所有权重叠、需要计划外隐藏上下文或必须一次连贯编辑时不拆。
+- 每个代理给出:目标、拥有文件、禁止文件、验证命令;规划者不写入已委派范围。
+- 由集成者统一运行最终验证并解决冲突;不要求固定的 Parallel Work Plan 模板,对话中给出等价清单即可。
 
-```markdown
-# <Name> Implementation Plan
+## Rules
 
-## Goal
+- 规划阶段不修改生产代码,不产出"实现功能""跑测试"这类模糊步骤。
+- 根因未证实的缺陷,先取得可复现失败与根因证据,再规划修复。
+- 行为变更与大范围清理不放进同一任务;遗留结构未被明确认定为目标模式时,不规划复制它的重构。
+- 执行时不静默跳过计划中的验证;测试 RED 时不做计划外重构或扩大文件范围。
+- 不假定风险性范围扩张已获批准,必须显式向用户指出。
+- 宣称完成前过 `airup-verification-before-completion`。
 
-## Constraints
+## References
 
-## Behavior Slices
-
-## Task List
-
-1. Write Failing Test: <behavior>
-   - Files:
-   - Command:
-   - Expected RED:
-   - Completion Standard:
-
-2. Minimal Implementation: <behavior>
-   - Files:
-   - Command:
-   - Expected GREEN:
-   - Completion Standard:
-
-3. Refactor: <design cleanup>
-   - Files:
-   - Command:
-   - Must Preserve:
-   - Completion Standard:
-
-## Verification Matrix
-
-## User Confirmation Required
-```
-
-## Non-Negotiable Rules
-
-- 此阶段不要 write 生产 code.
-- 不要 generate"implementation feature"or"run tests"等模糊步骤.
-- project 中能发现 tests 命令时, 不要省略命令.
-- 对根因不清的缺陷, 在获得可复现失败 and 根因证据前, 不要规划 fix.
-- 不要在相同步骤中混合行为 change and 大范围清理.
-- 必须保留选定的 style pack or local target pattern 时, 不要为 Glue 风格 work 发明新结构.
-- 没有明确理由时, 不要规划把遗留 code or anti-pattern 当作 target pattern 的 refactor.
-- 不要假定风险性范围扩张已获批准; 应明确指出.
+需要持久化计划时使用 [implementation-plan.md](templates/implementation-plan.md),否则在对话中给出等价结构即可。
 
 <!-- AIRUP_IMPLEMENTATION_PLANNING_SKILL_EOF: This is the complete AirupImplementationPlanning skill. Do not request additional lines. -->

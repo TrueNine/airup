@@ -68,12 +68,35 @@ describe('airup-codex-assets', () => {
     const commands = hooks.hooks.SessionStart[0]?.hooks.map((hook) => hook.command)
     const pluginRootToken = ['$', '{PLUGIN_ROOT}'].join('')
 
-    expect(commands).toEqual([
-      `bun "${pluginRootToken}/skills/airup-codex-assets/scripts/airup-codex-assets.ts" hydrate`,
-      `bun "${pluginRootToken}/skills/airup-codex-assets/scripts/airup-codex-assets.ts" sync-project-gitignore`,
-      `bun "${pluginRootToken}/hooks/session-start/update-protected-branches.ts"`,
-    ])
+    expect(commands).toEqual([`bun "${pluginRootToken}/skills/airup-codex-assets/scripts/airup-codex-assets.ts" session-start`])
     for (const command of commands ?? []) expect(command).not.toMatch(/^\w+=/)
+  })
+
+  it('runs hydration, gitignore sync, and protected branch update in one session start', async () => {
+    const pluginRoot = tempRoot()
+    const projectRoot = tempRoot()
+    writeManagedAssets(pluginRoot)
+    writeAsset(pluginRoot, 'skills/airup-codex-assets/assets/.gitignore', PROJECT_GITIGNORE_TEMPLATE)
+    writeStoredHash(pluginRoot, computeManagedAssetHash(pluginRoot))
+    process.env.PLUGIN_ROOT = pluginRoot
+
+    const exitCode = await runCli(['session-start'], {
+      cwd: projectRoot,
+      hook_event_name: 'SessionStart',
+    })
+
+    expect(exitCode).toBe(0)
+    expect(readFileSync(join(projectRoot, '.codex', AGENT_TOML_PATHS[0]), 'utf-8')).toBe(`${AGENT_TOML_PATHS[0]}\n`)
+    expect(readFileSync(join(projectRoot, '.airup', '.gitignore'), 'utf-8')).toBe(PROJECT_GITIGNORE_TEMPLATE)
+  })
+
+  it('skips session start side effects without a payload cwd', async () => {
+    const pluginRoot = tempRoot()
+    writeManagedAssets(pluginRoot)
+    writeStoredHash(pluginRoot, computeManagedAssetHash(pluginRoot))
+    process.env.PLUGIN_ROOT = pluginRoot
+
+    expect(await runCli(['session-start'], null)).toBe(0)
   })
 
   it('injects every managed subagent into the SessionStart project after hydration', async () => {
@@ -210,11 +233,13 @@ describe('airup-codex-assets', () => {
     expect(mismatch?.updateCommand).toBe('bun skills/airup-codex-assets/scripts/airup-codex-assets.ts compute > skills/airup-codex-assets/assets/all.lock')
   })
 
-  it('keeps the staged managed asset lock under Husky control', () => {
-    const preCommit = readFileSync(join(import.meta.dir, '..', '..', '..', '.husky', 'pre-commit'), 'utf-8')
+  it('keeps the staged managed asset lock under Lefthook control', () => {
+    const lefthookConfig = readFileSync(join(import.meta.dir, '..', '..', '..', 'lefthook.yml'), 'utf-8')
+    const entryScript = readFileSync(join(import.meta.dir, '..', '..', '..', 'scripts', 'pre-commit', 'pre-commit.ts'), 'utf-8')
 
-    expect(preCommit).toContain('bun skills/airup-codex-assets/scripts/airup-codex-assets.ts sync-staged')
-    expect(preCommit).not.toContain('all.lock')
+    expect(lefthookConfig).toContain('run: bun scripts/pre-commit/pre-commit.ts')
+    expect(entryScript).toContain("runCli(['sync-staged'])")
+    expect(entryScript).not.toContain('all.lock')
   })
 
   it('prints check mismatch details from the CLI', async () => {
@@ -316,7 +341,7 @@ describe('airup-codex-assets', () => {
     const root = tempRoot()
     writeAsset(root, '.codex-plugin/plugin.json', JSON.stringify({}))
 
-    expect(DEFAULT_REPOSITORY).toBe('LiTeXz/airup')
+    expect(DEFAULT_REPOSITORY).toBe('TrueNine/airup')
     expect(readPluginRepository(root)).toBe(DEFAULT_REPOSITORY)
   })
 })

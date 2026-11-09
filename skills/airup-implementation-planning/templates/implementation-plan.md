@@ -1,42 +1,20 @@
 # <Name> Implementation Plan
+可选产物:需要持久化计划时写入本文件,否则在对话中给出等价结构即可。
 
-## Goal
+## Goal And Constraints
 
-## Constraints
+- 目标与范围:
+- 不应改变的行为/公共契约:
+- 需用户确认的执行前提:
 
-- 不应改变：
-- 公共契约：
-- 数据/事务/副作用风险：
-- 用户已有改动：
+## Tasks
 
-## Behavior Slices
-
-## Task List
-
-1. 写失败测试：<behavior>
-   - 文件：
-   - 命令：
-   - 预期 RED：
-   - 完成标准：
-
-2. 最小实现：<behavior>
-   - 文件：
-   - 命令：
-   - 预期 GREEN：
-   - 完成标准：
-
-3. 重构：<design cleanup>
-   - 文件：
-   - 命令：
-   - 必须保持：
-   - 完成标准：
+| # | 切片/任务 | 文件 | 验证命令 | 预期 | 完成标准 |
+| --- | --- | --- | --- | --- | --- |
+| 1 |  |  |  | RED/GREEN/unchanged |  |
 
 ## Verification Matrix
 
 | 风险 | 保护方式 | 命令 | 预期 |
 | --- | --- | --- | --- |
 |  |  |  |  |
-
-## User Confirmation Required
-
-- 

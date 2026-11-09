@@ -1,4 +1,4 @@
 interface:
   display_name: "Implementation Planning"
-  short_description: "code 前 write 具体的小步实施计划. 适用于多步 feature, 缺陷 fix, refactor, DDD-to-TDD 交接, 风险行为 change, or 任何需要在 implementation 前明确 file, 命令, 预期 RED/GREEN result, 验证步骤 and 完成标准的工程 task. 存在 Gherkin .feature 行为契约时, 以其中 Scenario 作为行为切片与验收追踪锚点."
-  default_prompt: "使用 $airup-implementation-planning generate include file, 命令 and 预期 result 的分步实施计划."
+  short_description: "把已确认的需求、DDD 设计或胶水实现选型转成小步可验证的实施计划,并安全执行:每任务给出文件、验证命令与预期 RED/GREEN,偏离即修计划;支持互斥所有权的并行委托。不负责 DDD 建模或代码评审。"
+  default_prompt: "使用 $airup-implementation-planning 把需求转成带文件、验证命令与预期 RED/GREEN 的小步实施计划,并按计划安全执行。"

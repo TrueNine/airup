@@ -119,8 +119,6 @@ describe('Codex hook trust hash', () => {
 
     expect(entries.map(({ key }) => key)).toEqual([
       'airup@airup:hooks/hooks.codex.json:session_start:0:0',
-      'airup@airup:hooks/hooks.codex.json:session_start:0:1',
-      'airup@airup:hooks/hooks.codex.json:session_start:0:2',
       'airup@airup:hooks/hooks.codex.json:pre_tool_use:0:0',
       'airup@airup:hooks/hooks.codex.json:post_tool_use:0:0',
     ])
@@ -600,13 +598,14 @@ describe('Codex config text boundaries', () => {
     const newPath = join(root, 'nested', 'config.toml')
     writeConfigAtomically(newPath, undefined, 'new = true\n')
     expect(readFileSync(newPath, 'utf-8')).toBe('new = true\n')
-    expect(statSync(newPath).mode & 0o777).toBe(0o600)
+    // Windows 不实现 POSIX 权限位,statSync 返回的 mode 不反映 0600 语义
+    if (process.platform !== 'win32') expect(statSync(newPath).mode & 0o777).toBe(0o600)
 
     const existingPath = join(root, 'existing.toml')
     writeFileSync(existingPath, 'old = true\n', { mode: 0o640 })
     writeConfigAtomically(existingPath, 'old = true\n', 'new = true\n')
     expect(readFileSync(existingPath, 'utf-8')).toBe('new = true\n')
-    expect(statSync(existingPath).mode & 0o777).toBe(0o640)
+    if (process.platform !== 'win32') expect(statSync(existingPath).mode & 0o777).toBe(0o640)
 
     writeFileSync(existingPath, 'stable = true\n')
     expect(() =>

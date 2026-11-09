@@ -126,7 +126,7 @@ describe('line catalogs', () => {
       expect(invalidKind.stderr.toString()).toBe('Usage: validate-authorization-identifiers.ts --kind <permission|role> --input <file>\n')
 
       const [logName] = readdirSync(join(directory, '.logs'))
-      expect(logName).toEndWith('-iam-cli.log')
+      expect(logName).toBe('iam-cli.log')
       const logEntries = readFileSync(join(directory, '.logs', logName as string), 'utf-8')
         .trim()
         .split('\n')

@@ -59,11 +59,9 @@ describe('Bun and TypeScript runtime migration', () => {
   it('documents Bun commands for repository validators', () => {
     const dddSkill = readFileSync(join(ROOT, 'skills', 'airup-ddd-event-storming-design', 'SKILL.md'), 'utf-8')
     const tddSkill = readFileSync(join(ROOT, 'skills', 'airup-dev-tdd', 'SKILL.md'), 'utf-8')
-    const hookProtocol = readFileSync(join(ROOT, 'skills', 'airup-dev-tdd', 'references', 'hook-protocol.md'), 'utf-8')
 
     expect(dddSkill).toContain('bun "<SKILL_INSTALL_ROOT>/scripts/validate-ddd-design.ts"')
-    expect(tddSkill).toContain('install 后 skill 根 directory 中的 `validate-tdd-protocol.ts`')
-    expect(hookProtocol).toContain('bun "<SKILL_INSTALL_ROOT>/scripts/validate-tdd-protocol.ts"')
+    expect(tddSkill).toContain('bun "<SKILL_INSTALL_ROOT>/scripts/tdd-checkpoint.ts"')
   })
 
   it('uses the local Biome schema and includes agent integration directories', () => {

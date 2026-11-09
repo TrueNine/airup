@@ -1,4 +1,4 @@
-import { appendFileSync, mkdirSync, readdirSync, readSync } from 'node:fs'
+import { appendFileSync, mkdirSync, readSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { format } from 'node:util'
 
@@ -20,7 +20,7 @@ export interface ScriptLogger {
   log(level: ScriptLogLevel, event: string, details?: Readonly<Record<string, ScriptLogValue>>): void
 }
 
-const SESSION_ENV_NAMES = ['CODEX_THREAD_ID', 'CODEX_SESSION_ID', 'CLAUDE_SESSION_ID', 'OPENCODE_SESSION_ID'] as const
+export const SESSION_ENV_NAMES = ['CODEX_THREAD_ID', 'CODEX_SESSION_ID', 'CLAUDE_SESSION_ID', 'OPENCODE_SESSION_ID'] as const
 
 const CONSOLE_LEVELS = {
   debug: 'debug',
@@ -84,7 +84,7 @@ export function createScriptLogger(context: ScriptLoggingContext): ScriptLogger 
   const now = nowProvider(context.now)
   let filePath: string | undefined
   try {
-    filePath = resolveLogFile(resolvePluginRoot(context.pluginRoot), sessionId, now())
+    filePath = resolveLogFile(resolvePluginRoot(context.pluginRoot), sessionId)
   } catch {}
 
   return {
@@ -107,16 +107,12 @@ export function createScriptLogger(context: ScriptLoggingContext): ScriptLogger 
   }
 }
 
-function resolveLogFile(pluginRoot: string, sessionId: string, now: Date): string {
+// The file name is derived from the session id alone: scanning the log directory on every
+// hook invocation would slow down as past logs accumulate.
+function resolveLogFile(pluginRoot: string, sessionId: string): string {
   const logDir = join(pluginRoot, '.logs')
   mkdirSync(logDir, { recursive: true })
-  const safeSessionId = sanitizeSessionId(sessionId)
-  const existing = readdirSync(logDir, { withFileTypes: true })
-    .filter((entry) => entry.isFile())
-    .map((entry) => entry.name)
-    .filter((fileName) => sessionIdFromFileName(fileName) === safeSessionId)
-    .sort((left, right) => left.localeCompare(right))[0]
-  return join(logDir, existing ?? `${formatMinute(now)}-${safeSessionId}.log`)
+  return join(logDir, `${sanitizeSessionId(sessionId)}.log`)
 }
 
 export function resolvePluginRoot(configuredRoot?: string): string {
@@ -143,27 +139,12 @@ function sessionIdFromPayload(payload: unknown): string | undefined {
   return nonEmptyString(record.session_id) ?? nonEmptyString(record.sessionId)
 }
 
-function sessionIdFromFileName(fileName: string): string | undefined {
-  const match = /^(?:\d{12})-(.+)\.log$/.exec(fileName)
-  return match?.[1]
-}
-
 function sanitizeSessionId(sessionId: string): string {
   try {
     return encodeURIComponent(sessionId)
   } catch {
     return `encoded-${Buffer.from(sessionId).toString('base64url')}`
   }
-}
-
-function formatMinute(value: Date): string {
-  return [
-    value.getFullYear().toString().padStart(4, '0'),
-    (value.getMonth() + 1).toString().padStart(2, '0'),
-    value.getDate().toString().padStart(2, '0'),
-    value.getHours().toString().padStart(2, '0'),
-    value.getMinutes().toString().padStart(2, '0'),
-  ].join('')
 }
 
 function nowProvider(configured?: Date | (() => Date)): () => Date {
