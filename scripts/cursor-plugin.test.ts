@@ -22,7 +22,7 @@ describe('Cursor plugin', () => {
     const marketplace = JSON.parse(readFileSync(join(ROOT, '.cursor-plugin/marketplace.json'), 'utf8'))
     expect(marketplace).toMatchObject({
       name: 'airup',
-      owner: { name: 'LiTeXz', email: 'truenine304520@gmail.com' },
+      owner: { name: 'TrueNine', email: 'truenine304520@gmail.com' },
       plugins: [{ name: 'airup', source: '.' }],
     })
     expect(marketplace.plugins).toHaveLength(1)

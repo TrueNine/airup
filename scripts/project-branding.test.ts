@@ -20,7 +20,7 @@ const olderLegacyDotDirectory = ['.', 'dev', 'flow'].join('')
 const currentSlug = 'airup'
 const currentBrand = 'Airup'
 const currentPluginId = ['airup', '@', 'airup'].join('')
-const repository = `LiTeXz/${currentSlug}`
+const repository = `TrueNine/${currentSlug}`
 const repositoryUrl = `https://github.com/${repository}`
 const migrationDocument = 'README.md'
 const legacyTokens = [
@@ -120,11 +120,11 @@ describe(`${currentBrand} project identity`, () => {
 
     expect(readme).toContain(`codex plugin marketplace upgrade ${currentSlug}`)
     expect(readme).toContain(`codex plugin add ${currentPluginId}`)
-    for (const developmentDetail of ['bun run', 'pnpm ', 'Husky', 'format:markdown', 'pre-commit']) {
+    for (const developmentDetail of ['bun run', 'pnpm ', 'Husky', 'Lefthook', 'format:markdown', 'pre-commit']) {
       expect(readme).not.toContain(developmentDetail)
     }
     expect(contributing).toContain('bun run format:markdown:write')
-    expect(contributing).toContain('Husky `pre-commit`')
+    expect(contributing).toContain('Lefthook `pre-commit`')
   })
 
   it('documents project scope, naming rationale, and migration rules', () => {
